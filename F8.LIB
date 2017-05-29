@@ -1,0 +1,138 @@
+Sub filter21C4 '- &H7E2 - &H7EA
+  Local rxData(8), rxOk, Looper : Looper=0
+  Do
+    CAN RX 21,rxData(0),rxOk 'CHANNEL 21 - tx&H7E2 to rx&H7EA
+    If rxok = 1 Then
+      If rxData(0)=&H10 And rxData(1)=&H11 And rxdata(2)=&H61 And rxdata(3)=&HC4 Then
+        HVflags=rxData(5) : Exit Sub
+      EndIf
+    EndIf
+    Looper=Looper+1 : If Looper > 6 Then Exit Sub
+  Loop
+End Sub
+
+Sub F8
+  GoSub Printheader
+  Cls bg
+  Print @(0,0) CLR$(fg,bg)+"FG";
+  Print @(45,0) CLR$(fg,bg)+"FG1";
+  Print @(90,0) CLR$(fg,bg)+"FG2";
+  Print @(135,0) CLR$(fg,bg)+"RPM"
+  Print @(192,0) CLR$(fg,bg)+"TNM";
+  Print @(255,0) CLR$(fg,bg)+"th"
+  Print @(293,0) CLR$(fg,bg)+"LOD"
+  Print @(336,0) CLR$(fg,bg)+"FFL"
+  Print @(390,0) CLR$(fg,bg)+"HVF" : Font 2
+  If metric=1 Then Print  @(386,370) CLR$(fg,bg)+" oC: "
+  If metric=0 Then Print  @(386,370) CLR$(fg,bg)+" oF: "
+  Print @(360,390) CLR$(fg,bg)+"BRAKE: " @(400,410) CLR$(fg,bg)+"EV: " @(440,0) CLR$(fg,bg)+"FG3"
+End Sub
+
+Sub UpdateF8
+    Local Y, n3
+    Font 1,2,1
+    Print @(0,20) CLR$(fg,bg)+"  " @(0,20) CLR$(fg,bg)+Hex$(H3C8data0);
+    Print @(45,20) CLR$(fg,bg)+"  "; @(45,20) CLR$(fg,bg)+Hex$(H348data0);
+    Print @(90,20) CLR$(fg,bg)+"  "; @(90,20) CLR$(fg,bg)+Hex$(H348data1);
+    Print @(135,20) CLR$(fg,bg)+Format$(Trpm,"%04.0f");
+    Print @(212,20) CLR$(fg,bg)+Format$(TTQH+TTQL/10,"%03.0f");
+    Print @(257,20) CLR$(fg,bg)+Format$(throt,"%02.0f");
+    Print @(289,20) CLR$(fg,bg)+Format$(Cload,"%03.0f")
+    Print @(334,20) CLR$(fg,bg)+Format$(fuelflow,"%04.1f");
+    Print @(410,20) CLR$(fg,bg)+"  " @(410,20) CLR$(fg,bg)+Hex$(HVflags);
+    Print @(440,20) CLR$(fg,bg)+Hex$(H039data1) : Font 2
+    Print @(340,370) CLR$(fg,bg)+Format$(H3C8data1,"%02.0f")
+    Print @(440,370) CLR$(fg,bg)+"     ";
+    If metric=1 Then 
+      Print @(440,370) CLR$(fg,bg)+Format$(ECT,"%03.0f") 
+    Endif
+    If metric=0 Then
+      ECTF=(ECT*9/5)+32
+      Print @(440,370) CLR$(fg,bg)+Format$(ECTF,"%03.0f") 
+    Endif
+    Print @(440,390) CLR$(fg,bg)+Format$(BRAKE,"%02.0f")
+    Print @(440,410) CLR$(fg,bg)+Format$(EVmode,"%03.0f")
+    If K$ = " " Then
+      If stop=1 Then stop=0 Else stop=1
+    EndIf
+    Font 2 : Print @(10,330) CLR$(fg,bg)+"         " @(10,330) CLR$(fg,bg)+Bin$(HVflags)
+    If (HVflags And &B00000001) = 1 Then Print @(10,350) CLR$(fg,bg)+"                     " @(10,350) CLR$(fg,bg)+"X1-ICE Warming Up Req"
+    If (HVflags And &B00000010) = 2 Then  Print @(10,350) CLR$(fg,bg)+"                     " @(10,350) CLR$(fg,bg)+"X2-A/C Run Req"
+    If (HVflags And &B00000100) = 4 Then  Print @(10,350) CLR$(fg,bg)+"                     " @(10,350) CLR$(fg,bg)+"X4-ICE Stop Inh. Req"
+    If (HVflags And &B00001000) = 8 Then Print @(10,350) CLR$(fg,bg)+"                     " @(10,350) CLR$(fg,bg)+"X8-HCAC OBD Req"
+    If (HVflags And &B00001111) = 0 Then Print @(10,350) CLR$(fg,bg)+"                      "
+    If (HVflags And &B00010000) = 16 Then Print @(10,370) CLR$(fg,bg)+"                     " @(10,370) CLR$(fg,bg)+"1X-HV Bat. Cha. Req"
+    If (HVflags And &B00100000) = 32 Then Print @(10,370) CLR$(fg,bg)+"                     " @(10,370) CLR$(fg,bg)+"2X-ICE Idling Req"
+    If (HVflags And &B01000000) = 64 Then Print @(10,370) CLR$(fg,bg)+"                     " @(10,370) CLR$(fg,bg)+"4X-ICE Stop Req"
+    If (HVflags And &B10000000) = 128 Then Print @(10,370) CLR$(fg,bg)+"                     " @(10,370) CLR$(fg,bg)+"8X-????????    "
+    If (HVflags And &B11110000) = 0 Then Print @(10,370) CLR$(fg,bg)+"                     "
+    n3=0
+    If stop=0 Then
+      If n3=0 Then
+        If H3C8data0<>fl Then
+          y=20 : Font 1,2,1 : Print @(0,y) CLR$(fg,bg)+"  ";
+          Print @(0,y) CLR$(fg,bg)+Hex$(H3C8data0);
+          Print @(45,y) CLR$(fg,bg)+"  "; @(45,y) CLR$(fg,bg)+Hex$(H348data0);
+          Print @(90,y) CLR$(fg,bg)+"  "; @(90,y) CLR$(fg,bg)+Hex$(H348data1);
+          Print @(135,y) CLR$(fg,bg)+Format$(Trpm,"%04.0f");
+          Print @(212,y) CLR$(fg,bg)+Format$(TTQH+TTQL/10,"%03.0f");
+          Print @(257,y) CLR$(fg,bg)+Format$(throt,"%02.0f");
+          Print @(289,y) CLR$(fg,bg)+Format$(Cload,"%03.0f");
+          Print @(334,y) CLR$(fg,bg)+Format$(fuelflow,"%04.1f");
+          Print @(410,y) CLR$(fg,bg)+Hex$(HVflags);
+          Print @(440,y) CLR$(fg,bg)+Hex$(H039data1,"%02.0f");
+          BLIT 0,20,0,42,480,282 : n3=1
+        EndIf
+      EndIf
+      If N3=0 Then
+        If H348data0<>fl1 Then
+          y=20 : Font 1,2,1 : Print @(0,y) CLR$(fg,bg)+"  ";
+          Print @(0,y) CLR$(fg,bg)+Hex$(H3C8data0);
+          Print @(45,y) CLR$(fg,bg)+"  "; @(45,y) CLR$(fg,bg)+Hex$(H348data0);
+          Print @(90,y) CLR$(fg,bg)+"  "; @(90,y) CLR$(fg,bg)+Hex$(H348data1);
+          Print @(135,y) CLR$(fg,bg)+Format$(Trpm,"%04.0f");
+          Print @(212,y) CLR$(fg,bg)+Format$(TTQH+TTQL/10,"%03.0f");
+          Print @(257,y) CLR$(fg,bg)+Format$(throt,"%02.0f");
+          Print @(289,y) CLR$(fg,bg)+Format$(Cload,"%03.0f");
+          Print @(334,y) CLR$(fg,bg)+Format$(fuelflow,"%04.1f");
+          Print @(410,y) CLR$(fg,bg)+Hex$(HVflags);
+          Print @(440,y) CLR$(fg,bg)+Hex$(H039data1,"%02.0f");
+          BLIT 0,20,0,42,480,282 : n3=1
+        EndIf
+      EndIf
+      If n3=0 Then
+        If H348data1<>fl2 Then
+          y=20 : Font 1,2,1 : Print @(0,y) CLR$(fg,bg)+"  ";
+          Print @(0,y) CLR$(fg,bg)+Hex$(H3C8data0);
+          Print @(45,y) CLR$(fg,bg)+"  "; @(45,y) CLR$(fg,bg)+Hex$(h348data0)
+          Print @(90,y) CLR$(fg,bg)+"  "; @(90,y) CLR$(fg,bg)+Hex$(h348data1);
+          Print @(135,y) CLR$(fg,bg)+Format$(Trpm,"%04.0f")
+          Print @(212,y) CLR$(fg,bg)+Format$(TTQH+TTQL/10,"%03.0f");
+          Print @(257,y) CLR$(fg,bg)+Format$(throt,"%02.0f");
+          Print @(289,y) CLR$(fg,bg)+Format$(Cload,"%03.0f");
+          Print @(334,y) CLR$(fg,bg)+Format$(fuelflow,"%04.1f")
+          Print @(410,y) CLR$(fg,bg)+Hex$(HVflags);
+          Print @(440,y) CLR$(fg,bg)+Hex$(H039data1);
+          BLIT 0,20,0,42,480,282 : n3=1
+        EndIf
+      EndIf
+      If n3=0 Then
+        If H039data1<>fl3 Then
+          y=20 : Font 1,2,1 : Print @(0,y) CLR$(fg,bg)+"  ";
+          Print @(0,y) CLR$(fg,bg)+Hex$(H3C8data0);
+          Print @(45,y) CLR$(fg,bg)+"  "; @(45,y) CLR$(fg,bg)+Hex$(h348data0);
+          Print @(90,y) CLR$(fg,bg)+"  "; @(90,y) CLR$(fg,bg)+Hex$(h348data1);
+          Print @(135,y) CLR$(fg,bg)+Format$(Trpm,"%04.0f");
+          Print @(212,y) CLR$(fg,bg)+Format$(TTQH+TTQL/10,"%03.0f");
+          Print @(257,y) CLR$(fg,bg)+Format$(throt,"%02.0f");
+          Print @(289,y) CLR$(fg,bg)+Format$(Cload,"%03.0f");
+          Print @(334,y) CLR$(fg,bg)+Format$(fuelflow,"%04.1f");
+          Print @(410,y) CLR$(fg,bg)+Hex$(HVflags);
+          Print @(440,y) CLR$(fg,bg)+Hex$(H039data1,"%02.0f");
+          BLIT 0,20,0,42,480,282 : n3=1
+        EndIf
+      EndIf
+      fl = H3C8data0 : fl1 = H348data0 : fl2 = H348data1 : fl3 = H039data1
+    EndIf
+End Sub
+

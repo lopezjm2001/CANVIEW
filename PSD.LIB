@@ -1,0 +1,55 @@
+Sub PSD
+  Local X
+  If MM.Device$<>"Colour Maximite" Then fg=Green : bg=Black
+'  GoSub printHeader : GoSub drawlabels_rhs : GoSub drawBoxes
+  Font 1
+  Print @(20,147) CLR$(fg,bg)+"MG2:" @(20,167) CLR$(fg,bg)+"ICE=MG1:"
+  Line(15,302)-(143,375),fg,B : Font 1 ' PSD box
+  Print @(20,317) CLR$(fg,bg)+"MG2:";
+  Print @(20,337) CLR$(fg,bg)+"ICE:" @(20,357) CLR$(fg,bg)+"MG1:"
+  Print @(169,235) CLR$(fg,bg)+"ICE" @(110,220) CLR$(fg,bg)+"0 rpm"
+  Print @(86,95) CLR$(fg,bg)+"7800 rpm";
+  Print @(142,260) CLR$(fg,bg)+"MG2" @(243,360) CLR$(fg,bg)+"MG1"
+  Line(150,100)-(150,250),fg : Line(177,140)-(177,225),fg : Line(250,100)-(250,350),fg
+  For X = 140 To 250 Step 5
+  Line(x,225)-(X+2,225),fg
+  Next X
+  For X = 140 To 250 Step 5
+  Line(x,100)-(X+2,100),fg
+  Next X
+  Print @(20,257) CLR$(fg,bg)+"MG2:";
+End Sub
+
+Sub updatePSD
+  Local y1 : Local y2 : Local y3 : Local y4
+  Font 2 : y1=memy1 : y2=memy2 : y3=memy3 : y4=memy4
+  Line(151,y1)-(177,y2),bg : Line(177,y3)-(249,y4),bg
+  Print @(70,140) CLR$(fg,bg)+Format$(MG2tq,"%-4.0fNM"); : Font 2
+  Print @(70,160) CLR$(fg,bg)+Format$(MG1tq,"%-4.0fNM"); : Font 1
+  Font 2 : Print @(50,310) CLR$(fg,bg)+ Format$(MG2rpm,"%-5.0f"); : Font 1
+  Print CLR$(fg,bg)+"rpm"
+  Font 2 : Print @(50,330) CLR$(fg,bg)+Format$(ICErpm,"%-5.0f"); : Font 1
+  Print CLR$(fg,bg)+"rpm"
+  Font 2 : Print @(50,350) CLR$(fg,bg)+Format$(MG1rpm,"%-5.0f"); : Font 1
+  Print CLR$(fg,bg)+"rpm"
+  y1=(((mg2rpm/7800)*-125)+225) : y2=(((ICErpm/7800)*-125)+225)
+  Line(151,y1)-(177,y2),fg : y3=(((ICErpm/7800)*-125)+225) : y4=(((MG1rpm/7800)*-125)+225)
+  Line(177,y3)-(249,y4),fg
+  For X = 140 To 250 Step 5
+  Line(x,225)-(X+2,225),fg
+  Next X
+  Line(177,140)-(177,225),fg
+  memy1=y1 : memy2=y2 : memy3=y3 : memy4=y4
+  MG2tF=(MG2t*9/5)+32
+  Print @(40,250) CLR$(fg,bg)+"     ";
+  If metric=1 Then
+    Font 2 : Print @(40,250) CLR$(fg,bg)+Format$(MG2t,"% -3.0f"); : Font 1
+    Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+  Endif
+  If metric=0 Then
+    Font 2 : Print @(40,250) CLR$(fg,bg)+Format$(MG2tF,"% -3.0f"); : Font 1
+    Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+  Endif
+
+End Sub
+

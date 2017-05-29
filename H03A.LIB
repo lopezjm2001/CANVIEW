@@ -1,0 +1,23 @@
+Sub H03A
+  GoSub Printheader : GoSub Drawboxes : GoSub Drawlabels_RHS : Font 2
+  Print @(10,110) CLR$(fg,bg)+"&H03A - POWER";: Font 1
+  Print @(10,160) CLR$(fg,bg)+"Data(0)0 or 1:"
+  Print @(10,190) CLR$(fg,bg)+"Data(1)Power:"
+  Print @(10,220) CLR$(fg,bg)+"Data(2):"
+  Print @(10,250) CLR$(fg,bg)+"Data(3):"
+  Print @(10,280) CLR$(fg,bg)+"Data(4)HV:"
+  Print @(10,310) CLR$(fg,bg)+"Data(5)HV:";
+  Print @(10,340) CLR$(fg,bg)+"HV volts:";
+End Sub
+
+Sub UpdateH03A   ' Message 039 - ICE and 03A - MG2
+  Local volts1 : Font 3
+  Print @(100,140) CLR$(fg,bg)+Hex$(H03Adata0) : Colour fg,bg
+  Print @(100,170) Power
+  Print @(100,200) CLR$(fg,bg)+Hex$(H03Adata2)
+  Print @(100,230) CLR$(fg,bg)+Hex$(H03Adata3)
+  Print @(100,260) CLR$(fg,bg)+Hex$(H03Adata4)
+  Print @(100,290) CLR$(fg,bg)+Hex$(H03Adata5)
+  volts1=H03Adata5
+  Print @(100,320) CLR$(fg,bg)+Format$(volts1);
+End Sub

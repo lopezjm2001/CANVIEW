@@ -1,0 +1,38 @@
+Sub PHEV
+  Font 2
+  If metric=1 Then Print @(20,95) CLR$(fg,bg)+"PHEV BATTERY oC" : Font 1
+  If metric=0 Then Font 2 : Print @(20,95) CLR$(fg,bg)+"PHEV BATTERY oF" : Font 1
+  Print @(20,140) CLR$(fg,bg)+"Pack 1 Vo1:"
+  Print @(20,170) CLR$(fg,bg)+"Pack 2 Vo2:"
+  Print @(20,200) CLR$(fg,bg)+"Pack 3 Vo3:"
+  Print @(20,230) CLR$(fg,bg)+"Pack 4 Vo4:"
+  Print @(20,260) CLR$(fg,bg)+"Pack 1 ToC:"
+  Print @(20,290) CLR$(fg,bg)+"Pack 2 ToC:"
+  Print @(20,320) CLR$(fg,bg)+"Pack 3 ToC:"
+  Print @(20,350) CLR$(fg,bg)+"Pack 4 ToC:"
+End Sub
+
+Sub UpdatePHEV
+   Font 2 
+   Print @(90,130) CLR$(fg,bg)+Format$(Vo1,"%-1.4f")" volts"
+   Print @(90,160) CLR$(fg,bg)+Format$(Vo2,"%-1.4f")" volts"
+   Print @(90,190) CLR$(fg,bg)+Format$(Vo3,"%-1.4f")" volts"
+   Print @(90,220) CLR$(fg,bg)+Format$(Vo4,"%-1.4f")" volts"
+   Font 2 : Print @(90,250) CLR$(fg,bg)+"      ";
+   Font 2 : Print @(90,280) CLR$(fg,bg)+"      ";
+   Font 2 : Print @(90,310) CLR$(fg,bg)+"      ";
+   Font 2 : Print @(90,340) CLR$(fg,bg)+"      ";
+   If metric=1 Then
+     Font 2 : Print @(90,250) CLR$(fg,bg)+Format$(Temp1,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+     Font 2 : Print @(90,280) CLR$(fg,bg)+Format$(Temp2,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+     Font 2 : Print @(90,310) CLR$(fg,bg)+Format$(Temp3,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+     Font 2 : Print @(90,340) CLR$(fg,bg)+Format$(Temp4,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+   Endif
+   If metric=0 Then
+     Font 2 : Print @(90,250) CLR$(fg,bg)+Format$(Temp1F,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+     Font 2 : Print @(90,280) CLR$(fg,bg)+Format$(Temp2F,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+     Font 2 : Print @(90,310) CLR$(fg,bg)+Format$(Temp3F,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+     Font 2 : Print @(90,340) CLR$(fg,bg)+Format$(Temp4F,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+   Endif
+End Sub
+

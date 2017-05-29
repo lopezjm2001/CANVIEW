@@ -1,0 +1,86 @@
+Sub Filter21CE ' F5 - HV battery cell voltages @ &H7E3 - &H7EB
+  Local rxData(8), rxOk, D2, D3, D4, D5, D6, looper
+  Local HVB1MEM, HVB1, HVB2, HVB3, HVB4, HVB5, HVB6, HVB7, HVB8MEM, HVB9, HVB10, HVB11, HVB12, HVB13, HVB14, HVBT
+  D2=0 : D3=0 : D4=0 : D5=0 : D6=0 : Looper=0
+  Do
+    CAN RX 22,rxData(0),rxOk 'CHANNEL 24 - tx&H7E3 to rx&H7EB
+    If rxok = 1 Then
+      If D2=0 And rxData(0)=&H10 And rxData(1)=&H21 And rxData(2)=&H61 And rxData(3)=&HCE Then
+        HVB1MEM = rxData(7)
+      EndIf
+      If (D3=0) And (rxData(0) = &H21) Then
+        D3 = 1 : HVB1 = (2.56 * HVB1MEM) + (0.01 * rxData(1)) - 327.68
+        HVB2 = (2.56 * rxData(2)) + (0.01 * rxData(3)) - 327.68
+        HVB3 = (2.56 * rxData(4)) + (0.01 * rxData(5)) - 327.68
+        HVB4 = (2.56 * rxData(6)) + (0.01 * rxData(7)) - 327.68
+      EndIf
+      If D4 = 0 And (rxData(0) = &H22) Then
+        D4 = 1 : HVB5 = (2.56 * rxData(1)) + (0.01 * rxData(2)) - 327.68
+        HVB6 = (2.56 * rxData(3)) + (0.01 * rxData(4)) - 327.68
+        HVB7 = (2.56 * rxData(5)) + (0.01 * rxData(6)) - 327.68
+        HVB8MEM = rxData(7)
+      EndIf
+      If D5 = 0 And (rxData(0) = &H23) Then
+        If HVB8MEM > 0 Then HVB8 = (2.56*HVB8MEM)+(0.01*rxData(1))-327.68
+        HVB9 = (2.56 * rxData(2)) + (0.01 * rxData(3)) - 327.68
+        HVB10 = (2.56 * rxData(4)) + (0.01 * rxData(5)) - 327.68
+        HVB11 = (2.56 * rxData(6)) + (0.01 * rxData(7)) - 327.68 : D5 = 1
+      EndIf
+      If D6 = 0 And (rxData(0) = &H24) Then
+        D6 = 1 : HVB12 = (2.56 * rxData(1)) + (0.01 * rxData(2)) - 327.68
+        HVB13 = (2.56 * rxData(3)) + (0.01 * rxData(4)) - 327.68
+        HVB14 = (2.56 * rxData(5)) + (0.01 * rxData(6)) - 327.68
+      EndIf
+      HVBT = HVB1+HVB2+HVB3+HVB4+HVB5+HVB6+HVB7+HVB8+HVB9+HVB10+HVB11+HVB12+HVB13+HVB14
+    EndIf
+    looper = looper + 1
+    If looper > 6 Then
+      If test=1 Then
+        hvb1=hvb1+1   : If hvb1=>20 Then hvb1=10
+        hvb2=hvb2+1   : If hvb2=>20 Then hvb2=10
+        hvb3=hvb3+1   : If hvb3=>20 Then hvb3=10
+        hvb4=hvb4+1   : If hvb4=>20 Then hvb4=10
+        hvb5=hvb5+1   : If hvb5=>20 Then hvb5=10
+        hvb6=hvb6+1   : If hvb6=>20 Then hvb6=10
+        hvb7=hvb7+1   : If hvb7=>20 Then hvb7=10
+        hvb8=hvb8+1   : If hvb8=>20 Then hvb8=10
+        hvb9=hvb9+1   : If hvb9=>20 Then hvb9=10
+        hvb10=hvb10+1 : If hvb10=>20 Then hvb10=10
+        hvb11=hvb11+1 : If hvb11=>20 Then hvb11=10
+        hvb12=hvb12+1 : If hvb12=>20 Then hvb12=10
+        hvb13=hvb13+1 : If hvb13=>20 Then hvb13=10
+        hvb14=hvb14+1 : If hvb14=>20 Then hvb14=10
+      EndIf
+      Line(20,140)-(30,340),0,BF   : Line(35,140)-(45,340),0,BF   : Line(50,140)-(60,340),0,BF
+      Line(65,140)-(75,340),0,BF   : Line(80,140)-(90,340),0,BF   : Line(95,140)-(105,340),0,BF
+      Line(110,140)-(120,340),0,BF : Line(125,140)-(135,340),0,BF : Line(140,140)-(150,340),0,BF
+      Line(155,140)-(165,340),0,BF : Line(170,140)-(180,340),0,BF : Line(185,140)-(195,340),0,BF
+      Line(200,140)-(210,340),0,BF : Line(215,140)-(225,340),0,BF
+      Line(20,340-((hvb1-10)*20))-(30,340),1,BF    : Line(35,340-((hvb2-10)*20))-(45,340),2,BF
+      Line(50,340-((hvb3-10)*20))-(60,340),3,BF    : Line(65,340-((hvb4-10)*20))-(75,340),4,BF
+      Line(80,340-((hvb5-10)*20))-(90,340),5,BF    : Line(95,340-((hvb6-10)*20))-(105,340),6,BF
+      Line(110,340-((hvb7-10)*20))-(120,340),1,BF  : Line(125,340-((hvb8-10)*20))-(135,340),2,BF
+      Line(140,340-((hvb9-10)*20))-(150,340),3,BF  : Line(155,340-((hvb10-10)*20))-(165,340),4,BF
+      Line(170,340-((hvb11-10)*20))-(180,340),5,BF : Line(185,340-((hvb12-10)*20))-(195,340),6,BF
+      Line(200,340-((hvb13-10)*20))-(210,340),1,BF : Line(215,340-((hvb14-10)*20))-(225,340),2,BF
+      Line(15,276)-(230,276)-1   ' Lo volt line
+      Line(15,194)-(230,194)-1   ' hi volt line
+      Exit Sub
+    Endif
+  Loop
+End Sub
+
+Sub Gauge17
+'  GoSub printheader : GoSub drawboxes : GoSub drawlabels_RHS
+  Line(19,139)-(31,341),1,B : Line(34,139)-(46,341),1,B
+  Line(49,139)-(61,341),1,B : Line(64,139)-(76,341),1,B
+  Line(79,139)-(91,341),1,B : Line(94,139)-(106,341),1,B
+  Line(109,139)-(121,341),1,B : Line(124,139)-(136,341),1,B
+  Line(139,139)-(151,341),1,B : Line(154,139)-(166,341),1,B
+  Line(169,139)-(181,341),1,B : Line(184,139)-(196,341),1,B
+  Line(199,139)-(211,341),1,B : Line(214,139)-(226,341),1,B
+  Font 1,2 : Print @(20,100) clr$(fg,bg)+"OEM NiMH CELLS";
+  Font 1 : Print @(235,276) clr$(fg,bg)+"13.2v"; @(235,194) clr$(fg,bg)+"17.3v";
+  Print @(25,350) clr$(fg,bg)+"1" @(113,350) clr$(fg,bg)+"7" @(217,350) clr$(fg,bg)+"14";
+End Sub
+

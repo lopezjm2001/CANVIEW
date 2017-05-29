@@ -1,0 +1,60 @@
+Sub Gauge16
+'  GoSub printheader : GoSub drawboxes : GoSub drawlabels_RHS
+  Line(19,139)-(51,341),1,B : Line(59,139)-(91,341),1,B
+  Line(99,139)-(131,341),1,B : Line(139,139)-(171,341),1,B
+  Line(179,139)-(211,341),1,B : Line(219,139)-(251,341),1,B
+  Font 1 : Print @(10,95) clr$(fg,bg)+"GAUGE16";
+End Sub
+
+Sub Updategauge16
+
+  If test=1 Then
+    throt=throt+1     : If throt=>100 Then throt=0
+    cload=cload+1     : If cload=>100 Then cload=0
+    battkw=battkw+1   : If battkw=>40 Then battkw=-40
+    icekw=icekw+1     : If icekw=>100 Then icekw=0
+    mg1tq=mg1tq+10    : If mg1tq=>500 Then mg1tq=-500
+    mg1rpm=mg1rpm+100 : If mg1rpm=>13000 Then mg1rpm=-13000
+    mg2tq=mg2tq+10    : If mg2tq=>500 Then mg2tq=-500
+    mg2rpm=mg2rpm+100 : If mg2rpm=>8000 Then mg2rpm=-8000
+  EndIf
+
+  Font 1 : Print @(20,360) clr$(fg,bg)+"Throt"; "%"; @(60,360) clr$(fg,bg)+"Load";"%";
+  Print @(100,360) clr$(fg,bg)+"Batt" ; clr$(fg,bg)+"KW"; @(140,360) clr$(fg,bg)+"ICE"; clr$(fg,bg)+"kw";
+  Print @(180,360) clr$(fg,bg)+"MG1"; : ' Print @(180,360) clr$(fg,bg)+"MG1"; clr$(fg,bg)+"RPM";
+  Print @(220,360) clr$(fg,bg)+"MG2"; : ' Print @(220,360) clr$(fg,bg)+"MG2";
+
+  Font 1,2 : Print @(10,115) clr$(fg,bg)+Format$(throt,"% -3.0f"); @(50,115) clr$(fg,bg)+Format$(cload,"% -3.0f");
+  Print @(90,115) clr$(fg,bg)+Format$(battkw,"% -3.0f"); @(130,115) clr$(fg,bg)+Format$(icekw,"% -3.0f");
+  Font 1 : Print @(170,100) clr$(fg,bg)+Format$(mg1tq,"% -4.0fNM"); @(170,115) clr$(fg,bg)+Format$(mg1rpm,"% -6.0f");
+  Print @(210,100) clr$(fg,bg)+Format$(mg2tq,"% -4.0fNM"); @(210,115) clr$(fg,bg)+Format$(mg2rpm,"% -6.0fRPM");
+
+  Line(20,140)-(50,340),0,BF   : Line(60,140)-(90,340),0,BF   : Line(100,140)-(130,340),0,BF
+  Line(140,140)-(170,340),0,BF : Line(180,140)-(195,340),0,BF : Line(195,140)-(210,340),0,BF
+  Line(220,140)-(235,340),0,BF : Line(235,140)-(250,340),0,BF
+
+  Line(100,240)-(130,240),1 : Line(180,240)-(195,240),1 : Line(195,240)-(210,240),1
+  Line(220,240)-(235,240),1 : Line(235,240)-(250,240),1
+
+  Line(20,340-(throt*2))-(50,340),1,BF
+
+  Line(60,340-(cload*2))-(90,340),2,BF
+
+  If battkw>0 Then Line(100,240-((battkw/40)*100))-(130,240),3,BF
+  If battkw<0 Then Line(100,240)-(130,240+((battkw/-40)*100)),3,BF
+
+  Line(140,340-(icekw/100*200))-(170,340),4,BF
+
+  If mg1tq>0 Then Line(180,240-((mg1tq/500)*100))-(195,240),5,BF
+  If mg1tq<0 Then Line(180,240)-(195,240+((mg1tq/-500)*100)),5,BF
+
+  If mg1rpm>0 Then Line(195,240-((mg1rpm/13000)*100))-(210,240),6,BF
+  If mg1rpm<0 Then Line(195,240)-(210,240+((mg1rpm/-13000)*100)),6,BF
+
+  If mg2tq>0 Then Line(220,240-((mg2tq/500)*100))-(235,240),1,BF
+  If mg2tq<0 Then Line(220,240)-(235,240+((mg2tq/-500)*100)),1,BF
+
+  If mg2rpm>0 Then Line(235,240-((mg2rpm/8000)*100))-(250,240),2,BF
+  If mg2rpm<0 Then Line(235,240)-(250,240+((mg2rpm/-8000)*100)),2,BF
+
+End Sub

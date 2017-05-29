@@ -1,0 +1,20 @@
+Sub H20
+  GoSub Clearsubscreen : Font 2
+  Print @(10,110) CLR$(fg,bg)+"H20 WHEELS" : Font 1
+  Print @(10,160) CLR$(fg,bg)+"Data(0):"
+  Print @(10,190) CLR$(fg,bg)+"Data(1):"
+  Print @(10,220) CLR$(fg,bg)+"Data(2):"
+End Sub
+
+Sub UpdateH20
+  Local data(8) : Local ok : Local id : Local typ : Local length
+  CAN RX 24, id, typ, length, data(0), ok
+  If ok=1 Then
+    If id=&H20 then 
+      Font 3 : Colour fg,bg
+      Print @(100,140) "       " @(100,140) data(0)
+      Print @(100,170) "       " @(100,170) data(1)
+      Print @(100,200) "       " @(100,200) data(2)
+    Endif
+  EndIf
+End Sub

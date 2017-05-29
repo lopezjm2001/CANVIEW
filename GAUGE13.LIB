@@ -1,0 +1,47 @@
+Sub Gauge13
+'  GoSub printheader : GoSub drawboxes : GoSub drawlabels_RHS 
+  Line(19,139)-(51,341),1,B : Line(59,139)-(91,341),1,B
+  Line(99,139)-(131,341),1,B : Line(139,139)-(171,341),1,B
+  Line(179,139)-(211,341),1,B : Line(219,139)-(251,341),1,B
+  Font 1 : Print @(10,95) clr$(fg,bg)+"GAUGE13";
+End Sub
+
+Sub Updategauge13
+  
+  If test=1 then 
+    throt=throt+1   : If throt=>100 then throt=0
+    cload=cload+1   : If cload=>100 then cload=0
+    battkw=battkw+1 : If battkw=>40 then battkw=-40
+    icekw=icekw+1   : If icekw=>100 then icekw=0
+    nettkw=nettkw+1 : If nettkw=>100 then nettkw=-100
+    kph=kph+10      : If kph=>120 then kph=0   
+  Endif
+
+  Font 1 : Print @(20,360) clr$(fg,bg)+"Throt"; "%"; @(60,360) clr$(fg,bg)+"Load";"%"; 
+  Print @(100,360) clr$(fg,bg)+"Batt"; clr$(fg,bg)+"KW"; @(140,360) clr$(fg,bg)+"ICE";clr$(fg,bg)+"kw";
+  Print @(180,360) clr$(fg,bg)+"NETT"; clr$(fg,bg)+"kw"; @(220,360) clr$(fg,bg)+"kph";
+
+  Font 1,2 : Print @(10,115) clr$(fg,bg)+Format$(throt,"% -3.0f"); @(50,115) clr$(fg,bg)+Format$(cload,"% -3.0f");
+  Print @(90,115) clr$(fg,bg)+Format$(battkw,"% -3.0f"); @(130,115) clr$(fg,bg)+Format$(icekw,"% -3.0f");
+  Print @(180,115) clr$(fg,bg)+Format$(nettkw,"% -3.0f"); @(220,115) clr$(fg,bg)+Format$(kph,"% -3.0f");
+
+  Line(20,140)-(50,340),0,BF   : Line(60,140)-(90,340),0,BF   :  Line(100,140)-(130,340),0,BF
+  Line(140,140)-(170,340),0,BF : Line(180,140)-(210,340),0,BF :  Line(220,140)-(250,340),0,BF
+
+  Line(100,240)-(130,240),1 : Line(180,240)-(210,240),1
+
+  Line(20,340-(throt*2))-(50,340),1,BF 
+
+  Line(60,340-(cload*2))-(90,340),2,BF
+
+  If battkw>0 then Line(100,240-((battkw/40)*100))-(130,240),3,BF
+  If battkw<0 then Line(100,240)-(130,240+((battkw/-40)*100)),3,BF 
+
+  Line(140,340-(icekw/100*200))-(170,340),4,BF
+
+  If nettkw>0 then Line(180,240-((nettkw/100)*100))-(210,240),5,BF
+  If nettkw<0 then Line(180,240)-(210,240+((nettkw/-100)*100)),5,BF
+
+  Line(220,340-((kph/120)*200))-(250,340),6,BF
+
+End Sub

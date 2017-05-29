@@ -1,0 +1,54 @@
+Sub filter21CF ' @ &H7E3 - &H7EB
+  Local rxData(8), rxOk, HVVMF, auxbat, HVbatIT, HVcharge, HVdischarge, HVdelta, H21CF_H21_4
+  Local Fan_mode, H21CF_H21_6, HVbatT1mem, HVbatT1, HVbatT2, HVbatT3, Volts2
+  Local D1, D2, D3, looper : looper = 0 : D1=0 : D2=0 : D3=0
+  Do
+    CAN RX 22,rxData(0),rxOk 'CHANNEL 22 - tx&H7E3 to rx&H7EB
+    If rxok = 1 Then
+      Font 2
+      If D1=0 And rxData(0)=&H10 And rxData(1)=&H12 And rxData(2)=&H61 And rxData(3)=&HCF Then
+        HVVMF = (0.200 * rxData(6)) -25.6 : Print @(125,130)  CLR$(fg,bg)+Format$(HVVMF,"%2.2f") ; CLR$(fg,bg)+"v";
+        auxbat = (0.200 * rxData(7)) - 25.6 : Print @(125,150) CLR$(fg,bg)+Format$(auxbat,"%2.2f") ; CLR$(fg,bg)+"v";
+        HVBatIT = ((0.288 * rxData(4)) + (0.001129 * rxData(5)) + 32)-50 : D1=1 : Print @(125,170)  CLR$(fg,bg)+Format$(HVbatIT,"%2.0f") ; CLR$(fg,bg)+"oC";
+      EndIf
+      If D2=0 And rxData(0)=&H21 Then
+        HVcharge=rxData(1)-64 : Print @(125,190) CLR$(fg,bg)+Format$(charge,"%5.0f") ; CLR$(fg,bg)+"kW";
+        HVdischarge=rxData(2)-64 : Print @(125,210)  CLR$(fg,bg)+Format$(HVdischarge,"%5.0f") ; CLR$(fg,bg)+"kW";
+        HVDelta=0.010*rxData(3) :  Print @(125,230) CLR$(fg,bg)+Format$(HVdelta,"%3.0f") ; CLR$(fg,bg)+"%";
+        H21CF_H21_4=rxData(4) :  Print @(125,330)  CLR$(fg,bg)+Hex$(H21CF_H21_4); CLR$(fg,bg)+""
+        Fan_mode=rxData(5) :  Print @(125,350) CLR$(fg,bg)+Format$(Fan_mode,"%2.0f"); CLR$(fg,bg)+"";
+        H21CF_H21_6=rxData(6) : Print @(125,330)  CLR$(fg,bg)+Hex$(H21CF_H21_6); CLR$(fg,bg)+"";
+        HVbatT1mem=rxData(7) : D2=1
+      EndIf
+      If D3=0 And rxData(0)=&H22 Then
+        HVbatT1=0.288*HVbatT1mem+0.001129*rxData(1)+32 : Print @(125,250)  CLR$(fg,bg)+Format$(HVbatT1,"%3.0f") ; CLR$(fg,bg)+"oC";
+        HVbatT2=0.288*rxData(2)+0.001129*rxData(3)+32 : Print @(125,270) CLR$(fg,bg)+Format$(HVbatT2,"%3.0f") ; CLR$(fg,bg)+"oC";
+        HVbatT3=0.288*rxData(4)+0.001129*rxData(5)+32 : Print @(125,290)  CLR$(fg,bg)+Format$(HVbatT3,"%3.0f") ; CLR$(fg,bg)+"oC";
+        Volts2=0.200*rxData(6)-25.6 : D3=1 : Print @(125,310) CLR$(fg,bg)+Format$(Volts2,"%3.2f"); CLR$(fg,bg)+"v";
+      EndIf
+    EndIf
+    If D1=1 And D2=1 And D3=1 Then Exit Sub
+    looper = looper + 1 : If looper > 6 Then Exit Sub
+  Loop
+End Sub
+
+Sub H21CF
+  GoSub printheader : GoSub drawboxes : GoSub drawlabels_RHS
+  Font 1,2 : Print @(10,95) CLR$(fg,bg)+"PID NiMH H21CF"; : Font 2
+  Print @(10,130)  CLR$(fg,bg)+"HVVMF   :";
+  Print @(10,150)  CLR$(fg,bg)+"AuxBat  :";
+  Print @(10,170)  CLR$(fg,bg)+"HVBatIT :";
+  Print @(10,190)  CLR$(fg,bg)+"HVcharge:";
+  Print @(10,210)  CLR$(fg,bg)+"HVdischa:";
+  Print @(10,230)  CLR$(fg,bg)+"HVDelta :";
+  Print @(10,250)  CLR$(fg,bg)+"HVbatT1 :";
+  Print @(10,270)  CLR$(fg,bg)+"HVbatT2 :";
+  Print @(10,290)  CLR$(fg,bg)+"HVbatT3 :";
+  Print @(10,310)  CLR$(fg,bg)+"Volts2  :";
+  Print @(10,330)  CLR$(fg,bg)+"H21.4 :";
+  Print @(10,350)  CLR$(fg,bg)+"Fan mode:"  ;
+  Print @(10,370)  CLR$(fg,bg)+"H21.6:"  ;
+End Sub
+
+
+

@@ -1,0 +1,99 @@
+Sub F11
+'  GoSub printheader : GoSub drawboxes : GoSub drawlabels_RHS
+  Font 2 : Print @(10,90) CLR$(fg,bg)+"DTC CHECK";
+  Font 1 : Print @(10,330) CLR$(fg,bg)+"Press Esc button to return";
+  Local rxData(8), rxOk, txData(8), txOk, looper
+  rxData(0)=0: rxData(1)=0 : rxData(2)=0 : rxData(3)=0 : txOK=0 : rxOK=0
+  rxData(4)=0: rxdata(5)=0 : rxData(6)=0 : rxData(7)=0 : looper=0
+  Open "b:icedtc.csv" For append As #6
+  Write #6, Date$, Time$
+  Write #6,"ICE ECU DTC0","ICE ECU DTC1","ICE ECU DTC2","ICE ECU DTC3","ICE ECU DTC4","ICE ECU DTC5","ICE ECU DTC6","ICE ECU DTC7"
+  Open "b:hvdtc.csv" For append As #7
+  Write #7, Date$, Time$
+  Write #7,"HV ECU DTC0","HV ECU DTC1","HV ECU DTC2","HV ECU DTC3","HV ECU DTC4","HV ECU DTC5","HV ECU DTC6","HV ECU DTC7"
+  Open "b:ccdtc.csv" For append As #8
+  Write #8, Date$, Time$
+  Write #8,"CC ECU DTC0","CC ECU DTC1","CC ECU DTC2","CC ECU DTC3","CC ECU DTC4","CC ECU DTC5","CC ECU DTC6","CC ECU DTC7"
+  Open "b:hvbdtc.csv" For append As #9
+  Write #9, Date$, Time$
+  Write #9,"battery ECU DTC0","battery ECU DTC1","battery ECU DTC2","battery ECU DTC3","battery ECU DTC4","battery ECU DTC5","battery ECU DTC6","battery ECU DTC7"
+Do
+  txData(0)=&H2 : txData(1)=&H13 : txData(2)=&HB0
+  CAN TX 0,&H7E0,0,8,txData(0),txOk : ' CHECK ICE ECU DTC
+  If txOk=1 Then CAN RX 19,rxData(0),rxOk 'CHANNEL 19 - tx&H7E0 to rx&H7E8
+  If rxOK=1 Then
+    If rxData(0)=&H4 And rxData(1)=&H53 Then
+      Font 2 : Print @(10,110) CLR$(fg,bg)+"ICE ECU:     ";
+      Print @(10,130) CLR$(fg,bg)+Hex$(rxData(0)) " "; CLR$(1,3)+Hex$(rxData(1)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(2)) " "; CLR$(fg,bg)+Hex$(rxData(3)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(4)) " "; CLR$(fg,bg)+Hex$(rxData(5)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(6)) " "; CLR$(fg,bg)+Hex$(rxData(7)) " ";
+      If rxData(2)=&h1 And rxData(3)=&Hc1 And rxData(4)=&H0 Then forcedev=1
+      Write #6,rxData(0),rxData(1),rxData(2),rxData(3),rxData(4),rxData(5),rxData(6),rxData(7)
+    EndIf
+  EndIf
+  rxData(0)=0: rxData(1)=0 : rxData(2)=0 : rxData(3)=0
+  rxData(4)=0: rxdata(5)=0 : rxData(6)=0 : rxData(7)=0 : txData(2)=&HB0
+  CAN TX 0,&H7E2,0,8,txData(0),txOk : ' CHECK HYBRID ECU DTC
+  If txOk=1 Then CAN RX 21,rxData(0),rxOk 'CHANNEL 21 - tx&H7E2 to rx&H7EA
+  If rxOk=1 Then
+    If rxData(0)=&H4 And rxdata(1)=&H53 Then
+      Font 2 : Print @(10,150) CLR$(fg,bg)+"Hybrid ECU:  ";
+      Print @(10,170) CLR$(fg,bg)+Hex$(rxData(0)) " "; CLR$(fg,bg)+Hex$(rxData(1)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(2)) " "; CLR$(fg,bg)+Hex$(rxData(3)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(4)) " "; CLR$(fg,bg)+Hex$(rxData(5)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(6)) " "; CLR$(fg,bg)+Hex$(rxData(7)) " ";
+      If rxData(2)=&h1 And rxData(3)=&Hc1 And rxData(4)=&H0 Then forcedev=1
+      Write #7,rxData(0),rxData(1),rxData(2),rxData(3),rxData(4),rxData(5),rxData(6),rxData(7)
+    EndIf
+  EndIf
+  rxData(0)=0: rxData(1)=0 : rxData(2)=0 : rxData(3)=0
+  rxData(4)=0: rxdata(5)=0 : rxData(6)=0 : rxData(7)=0 : txData(2)=&H80
+  CAN TX 0,&H7E2,0,8,txData(0),txOk : ' CHECK CRUISE CONTROL ECU DTC
+  If txOk=1 Then CAN RX 21,rxData(0),rxOk 'CHANNEL 21 - tx&H7E2 to rx&H7EA
+  If rxOk=1 Then
+    If rxData(0)=&H4 And rxData(1)=&H53 Then
+      Font 2 : Print @(10,190) CLR$(fg,bg)+"Cruise ECU:  ";
+      Print @(10,210) CLR$(fg,bg)+Hex$(rxData(0)) " "; CLR$(fg,bg)+Hex$(rxData(1)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(2)) " "; CLR$(fg,bg)+Hex$(rxData(3)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(4)) " "; CLR$(fg,bg)+Hex$(rxData(5)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(6)) " "; CLR$(fg,bg)+Hex$(rxData(7)) " ";
+      If rxData(2)=&H1 And rxData(3)=&HC1 And rxData(4)=&H0 Then forcedev=1
+      Write #8,rxData(0),rxData(1),rxData(2),rxData(3),rxData(4),rxData(5),rxData(6),rxData(7)
+    EndIf
+  EndIf
+  rxData(0)=0: rxData(1)=0 : rxData(2)=0 : rxData(3)=0
+  rxData(4)=0: rxdata(5)=0 : rxData(6)=0 : rxData(7)=0 : txData(2)=&H80
+  CAN TX 0,&H7E3,0,8,txData(0),txOk : ' CHECK HV BATTERY ECU DTC
+  If txOk=1 Then CAN RX 22, rxData(0), rxOk 'CHANNEL 22 - tx&H7E3 to rx&H7EB
+  If rxOK=1 Then
+    If rxData(0)=&H4 And rxData(1)=&H53 Then
+      Font 2 : Print @(10,230) CLR$(fg,bg)+"Battery ECU: ";
+      Print @(10,250) CLR$(fg,bg)+Hex$(rxData(0)) " "; CLR$(fg,bg)+Hex$(rxData(1)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(2)) " "; CLR$(fg,bg)+Hex$(rxData(3)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(4)) " "; CLR$(fg,bg)+Hex$(rxData(5)) " ";
+      Print CLR$(fg,bg)+Hex$(rxData(6)) " "; CLR$(fg,bg)+Hex$(rxData(7)) " ";
+      If rxData(2)=&h1 And rxData(3)=&Hc1 And rxData(4)=&H0 Then forcedev=1
+      Write #9,rxData(0),rxData(1),rxData(2),rxData(3),rxData(4),rxData(5),rxData(6),rxData(7)
+    EndIf
+  EndIf
+  looper=looper+1
+  If looper>6 Then
+    Close #6 : Close #7 : Close #8 : Close #9 : Exit Sub
+  EndIf
+Loop
+End Sub
+
+Sub F12
+    Local txData(8), txOk ' F12 - CLEAR DTC
+    txData(0)=&H01 : txData(1)=&H04 : txData(2)=0 : txData(3)=0
+    txData(4)=0 : txData(5)=0 : txData(6)=0 : txData(7)=0 : txOK=0
+    CAN TX 0,&H7E0,0,8,txData(0),txOk : Pause 50
+    If txOk=0 Then Font 1 : Print @(40,330) CLR$(fg,bg)+"Could not Clear ICE ECU DTC"
+    Pause 50
+    CAN TX 0,&H7E2,0,8,txData(0),txOk : Pause 50
+    If txOk=0 Then Font 1 : Print @(40,340) CLR$(fg,bg)+"Could not Clear HV ECU DTC"
+    Pause 50
+    CAN TX 0,&H7E3,0,8,txData(0),txOk : Pause 50
+    If txOk=0 Then Font 1 : Print @(40,350) CLR$(fg,bg)+"Could not Clear bATTERY ECU DTC"
+End Sub

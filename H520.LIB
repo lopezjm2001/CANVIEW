@@ -1,0 +1,14 @@
+Sub H520
+  GoSub Clearsubscreen : Font 2
+  Print @(10,110) CLR$(fg,bg)+"&H520 - FUEL " : Font 1
+  Print @(10,160) CLR$(fg,bg)+"Data(0)168:"
+  Print @(10,190) CLR$(fg,bg)+"Data(1)Fuelb:"
+  Print @(10,220) CLR$(fg,bg)+"Data(2)Fuelc:"
+End Sub
+
+Sub UpdateH520
+  Font 3
+  Print @(100,140) CLR$(fg,bg)+Hex$(H520data0)
+  Print @(100,170) CLR$(fg,bg)+Hex$(fuelflowb)
+  Print @(100,200) CLR$(fg,bg)+Hex$(fuelflowc)
+End Sub

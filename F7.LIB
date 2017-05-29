@@ -1,0 +1,108 @@
+Sub filter21C4 '- &H7E2 - &H7EA
+  Local rxData(8), rxOk, looper
+  looper=0
+  Do
+    CAN RX 21,rxData(0) ,rxOk 'CHANNEL 21 - tx&H7E2 to rx&H7EA
+    If rxok = 1 Then
+     ' If rxData(0) =&H10 And rxData(1)=&H11 And rxdata(2)=&H61 And rxdata(3)=&HC4 Then
+     '   HVflags=rxData(5)
+     '   HVBB=2*rxData(7)
+     ' EndIf
+      If rxData(0) =&H21 Then
+        convt =(rxData(2)-50)
+     '   HVAB=2*rxData(1)
+      EndIf
+     ' If rxData(0) =&H23 Then
+     '   Scw=0.019608*rxData(1)
+     '   Rpr=0.392*rxData(4)
+     '   Acp=0.019608*rxdata(5)
+     ' EndIf
+    EndIf
+    looper = looper + 1 : If looper > 6 Then Exit Sub
+  Loop
+End Sub
+
+Sub F7
+  Line(0,0)-(820,480),3,bf
+  unit1$=" " : pl1=0 : pl1max=0
+  unit2$=" " : pl2=0 : pl2max=0
+  plot1=0 : plot2=0 : unit$=" "
+  Local d1 : d1=0 : x=0 : y=0 : x1=0 : y1=0
+  memx1=0 : memx2=0 : memy1=0 : memy2=0
+  Cls : GoSub drawlabels_RHS : Font 1,2 : Print @(5,5) "PLOT DISPLAY"; : pl1$=" " : pl2$=" "
+  If page = 7 Then
+    Cls : Font 1,2 : Print @(5,5) CLR$(fg,bg)+"PLOT DISPLAY";
+    Print @(20,40) CLR$(fg,bg)+"Enter plot time (minutes)"; : Input period
+    If (period < 1) Or (period > 7000) Then period=1
+    Print @(20,40) CLR$(fg,bg)+"                              ";
+    Font 1 : d1=0 : Print @(20,60) CLR$(fg,bg)+" Period = " period "minutes";
+    Print @(20,120) CLR$(fg,bg)+"1 - Current       2 - Volts    3 - DCL         4 - CCL,         5 - ICE rpm"
+    Print @(20,140) CLR$(fg,bg)+"6 - Brake pedal%  7 - SoC      8 - gas pedal%  9 - ICE kW,     10 - KPH"
+    Print @(20,160) CLR$(fg,bg)+"12 - ECT Deg.C.  13 - HV battery Deg.C. High  14 - MG1 Deg.C."
+    Print @(20,180) CLR$(fg,bg)+"15 - MG2 Deg.C.  16 - Inverter 1 temperature  17 - Inverter 2 temperature"
+    Print @(20,200) CLR$(fg,bg)+"18 - ICE Deg.C.  19 - Converter temperature   20 - Fuel flow l/min"
+    Print @(20,220) CLR$(fg,bg)+"21 - VVTI        22 - Gas Tank %              23 - Taget Power NM"
+    Print @(20,240) CLR$(fg,bg)+"24 - Power NM    25 - MG1 Torque NM           26 - MG2 Torque NM"
+    Print @(20,260) CLR$(fg,bg)+"27 - MG1 rpm     28 - Mg2 rpm      29 - Calculated Load %"
+    Print @(20,40) CLR$(fg,bg)+"Enter first plot parameter"; : Input pl1  : Print @(20,40) CLR$(fg,bg)+"                              ";
+    Print @(20,80)  pl1 CLR$(fg,bg)+" - " pl1$ CLR$(fg,bg)+" Max/Min on graph +/-" pl1max CLR$(fg,bg)+" " Unit1$ ;
+    Print @(20,40) CLR$(fg,bg)+"Enter second plot parameter"; : Input pl2
+    Print @(20,40) "                              ";
+    Print @(20,100) pl2 CLR$(fg,bg)+" - " pl2$ CLR$(fg,bg)+" Max/Min on graph +/-" pl2max CLR$(fg,bg)+" " Unit2$ ;
+  EndIf
+  Cls : GoSub drawlabels_rhs : Font 1,2 : Print @(5,5) CLR$(fg,bg)+"PLOT DISPLAY"; : Line(0,0)-(258,430),1,B
+  Line(0,216)-(258,216),1 : ' X axis graph line
+  If page <> 7 Then period = 1 : pl1 = 1 : pl2 = 2
+End Sub
+
+Sub updateF7
+    pln = pl1 : plotnn : plot1=plotn : unit1$=unit$ : pl1max=plmax : pln=pl2
+    plotnn() : plot2=plotn : unit2$=unit$ : pl2max=plmax
+    y = plot1 / pl1max * -215 + 215 : x1=memx1 : y1=memy1 : plot()
+    y = plot2 / pl2max * -215 + 215 : memx1=x1 : memy1=y1
+    x1=memx2 : y1=memy2 : x  = x - 1 : plot : memx2=x1 : memy2=y1 : Font 2
+    Print @(10,390)   CLR$(fg,bg)+"        ";   @(10,390) CLR$(fg,bg)+Format$(plot1,"% .0f"); unit1$;
+    Print @(10,360)   CLR$(fg,bg)+"          "; @(10,360) CLR$(fg,bg)+Format$(plot2,"% .0f"); Unit2$;
+    If X => 258 Then
+      BLIT 129,0,0,0,129,430 : Line (128,0)-(258,430),0,BF
+      Print @(1,28) CLR$(fg,bg)+"   "; : X = 129 : memx1=129 : memx2=129
+      Font 1,2 : Print @(2,5) CLR$(fg,bg)+" PLOT DISPLAY"; : Line(0,0)-(258,430),1,B
+      Line(0,216)-(258,216),1 : ' X axis graph line
+    EndIf
+End Sub
+
+Sub plot
+    x=X+1 : Line(x1 ,y1 )-(x,y),fg : x1=x : y1=y
+End Sub
+
+Sub Plotnn
+  d1 = 0 : pl$ = " "
+  If pln=1 Then plotn =current      :   pl$ ="current"        : plmax =120     : unit$ ="A"     : d1=1
+  If pln =2 Then plotn =volts        :   pl$ ="Volts"          : unit$ ="V"     : plmax =300     : d1=1
+  If pln =3 Then plotn =Dmax         :   pl$ ="DCL"            : unit$ ="A"     : plmax =125     : d1=1
+  If pln =4 Then plotn =Cmax         :   pl$ ="CCL"            : unit$ ="A"     : plmax =125     : d1=1
+  If pln =5 Then plotn =icerpm       :   pl$ ="ICE RPM"        : unit$ ="rpm"   : plmax =5000    : d1=1
+  If pln =6 Then plotn =brake        :   pl$ ="Brake position" : unit$ ="%"     : plmax =100     : d1=1
+  If pln =7 Then plotn =soc          :   pl$ ="SoC"            : unit$ ="%"     : plmax =100     : d1=1
+  If pln =8 Then plotn =throt        :   pl$ ="Gas Pedal Pos"  : unit$ ="%"     : plmax =100     : d1=1
+  If pln =9 Then plotn =ICEkw        :   pl$ ="ICE kW"         : unit$ ="kW"    : plmax =10      : d1=1
+  If pln =10 Then plotn =kph         :   pl$ ="KPH"            : unit$ ="kph"   : plmax =120     : d1=1
+  If pln =12 Then plotn =ECT         :   pl$ ="ECT"            : unit$  ="Deg.C": plmax =100     : d1=1
+  If pln =13 Then plotn =BatDegCh    :   pl$ ="HV Bat. Deg. C" : plmax =100     : unit$ ="Deg.C" : d1=1
+  If pln =14 Then plotn =MG1t        : unit$ ="C"              : plmax =100     : unit$ ="Deg.C" : d1=1
+  If pln =15 Then plotn =MG2t        : unit$ ="C"              : plmax =100     : unit$ ="Deg.C" : d1=1
+  If pln =16 Then plotn =INV1t       : unit$ ="C"              : plmax =100     : unit$ ="Deg.C" : d1=1
+  If pln =17 Then plotn =INV2t       : unit$ ="C"              : plmax =100     : unit$ ="Deg.C" : d1=1
+  If pln =18 Then plotn =ICEtemp     : pl$ ="ICE temperature"  : plmax =100     : unit$ ="Deg.C" : d1=1
+  If pln =19 Then plotn =convt     : pl$ ="Conv temperature" : plmax =100     : unit$ ="Deg.C" : d1=1
+  If pln =20 Then plotn =fuelflow    : pl$ ="Fuel Flow"        : plmax =20      : unit$ ="l/min" : d1=1
+  If pln =21 Then plotn =VVTi        : pl$ ="VVTI"             : plmax =100     : unit$ ="Deg.C" : d1=1
+  If pln =22 Then plotn =gastank     : pl$ ="Gas Tank % "      : plmax =100     : unit$ ="%"     : d1=1
+  If pln =23 Then plotn =targetpower : pl$ ="Target Power"     : plmax =300     : unit$ ="NM"    : d1=1
+  If pln =24 Then plotn =power       : pl$ ="Power"            : plmax =300     : unit$ ="NM"    : d1=1
+  If pln =25 Then plotn =mg1tq       : pl$ ="MG1TQ"            : plmax =300     : unit$ ="NM"    : d1=1
+  If pln =26 Then plotn =mg2tq       : pl$ ="MG2TQ"            : plmax =300     : unit$ ="NM"    : d1=1
+  If pln =27 Then plotn =mg1rpm      : pl$ ="MG1rpm"           : plmax =13000   : unit$ ="rpm"   : d1=1
+  If pln =28 Then plotn =mg2rpm      : pl$ ="MG2rpm"           : plmax =7000    : unit$ ="rpm"   : d1=1
+  If pln =29 Then plotn =Cload       : pl$ ="Cload%"           : plmax =100     : unit$ ="%"     : d1=1
+End Sub

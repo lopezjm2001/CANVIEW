@@ -1,0 +1,148 @@
+Sub filter21CF ' @ &H7E3 - &H7EB
+  Local rxData(8), rxOk, D1, D2, looper : looper = 0 : D1=0 : D2=0
+  Do
+    CAN RX 22,rxData(0),rxOk 'CHANNEL 22 - tx&H7E3 to rx&H7EB
+    If rxok = 1 Then
+      If D1=0 And rxData(0)=&H10 And rxData(1)=&H12 And rxData(2)=&H61 And rxData(3)=&HCF Then
+     '   HVVMF = (0.200 * rxData(6)) -25.6 : auxbat = (0.200 * rxData(7)) - 25.6
+        HVBatIT = ((0.288 * rxData(4)) + (0.001129 * rxData(5)) + 32)-50 : D1=1
+      EndIf
+     ' If (D2=0) And (rxData(0) = &H21) Then
+     '   HVcharge=rxData(1)-64 : HVdischarge=rxData(2)-64
+     '   HVDelta=0.010*rxData(3) : D2=1
+     ' EndIf
+    EndIf
+  '  If (D1=1) And (D2=1) Then Exit Sub
+    looper = looper + 1 : If looper > 6 Then Exit Sub
+  Loop
+End Sub
+
+Sub filter21C4 '- &H7E2 - &H7EA
+  Local rxData(8), rxOk, looper : looper=0
+  Do
+    CAN RX 21,rxData(0),rxOk 'CHANNEL 21 - tx&H7E2 to rx&H7EA
+    If rxok = 1 Then
+    '  If rxData(0)=&H10 And rxData(1)=&H11 And rxdata(2)=&H61 And rxdata(3)=&HC4 Then
+    '    HVflags=rxData(5)
+    '    HVBB=2*rxData(7)
+    '  EndIf
+      If rxData(0)=&H21 Then
+        convt=(rxData(2)-50)
+      '  HVAB=2*rxData(1)
+      EndIf
+    '  If rxData(0)=&H23 Then
+    '    Scw=0.019608*rxData(1)
+    '    Rpr=0.392*rxData(4)
+    '    Acp=0.019608*rxdata(5)
+    '  EndIf
+    EndIf
+    looper = looper + 1 : If looper > 6 Then Exit Sub
+  Loop
+End Sub
+
+Sub filter21CD '- &H7E0 - &H7E8
+  Local rxData(8), rxOk, looper : looper=0
+  Do
+    CAN RX 19,rxData(0),rxOk 'CHANNEL 19 - tx&H7E0 to rx&H7E8
+    If rxok = 1 Then
+'     If rxData(0)=&H10 And rxData(1)=&H14 And rxdata(2)=&H61 Then
+      If rxData(0)=&H21 Then EIPT=rxData(6)-40
+'      If rxData(0)=&H22 Then TOWT=rxData(1)-40
+    EndIf
+  looper = looper + 1 : If looper > 6 Then Exit Sub
+  Loop
+End Sub
+
+Sub UpdateVGATemp
+  Font 2
+  Print @(150,90)  CLR$(fg,bg)+"     ";
+  Print @(150,110) CLR$(fg,bg)+"     ";
+  Print @(150,130) CLR$(fg,bg)+"     ";
+  Print @(150,150) CLR$(fg,bg)+"     ";
+  Print @(150,170) CLR$(fg,bg)+"     ";
+  Print @(150,190) CLR$(fg,bg)+"     ";
+  Print @(150,210) CLR$(fg,bg)+"     ";
+  Print @(150,230) CLR$(fg,bg)+"     ";
+  Print @(150,250) CLR$(fg,bg)+"     ";
+  Print @(150,270) CLR$(fg,bg)+"     ";
+  Print @(150,290) CLR$(fg,bg)+"     ";
+  Print @(150,310) CLR$(fg,bg)+"     ";
+  Print @(150,330) CLR$(fg,bg)+"     ";
+  Print @(150,350) CLR$(fg,bg)+"     ";
+  If metric=1 Then
+    Font 2 : Print @(150,90) CLR$(fg,bg)+Format$(convt,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+    Print @(150,110) CLR$(fg,bg)+Format$(ICEt,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+    Print @(150,130) CLR$(fg,bg)+Format$(MG1t,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+    Print @(150,150) CLR$(fg,bg)+Format$(MG2t,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+    Print @(150,170) CLR$(fg,bg)+Format$(INV1t,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+    Print @(150,190) CLR$(fg,bg)+Format$(INV2t,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+   ' Print @(150,210) clr$(fg,bg)+Format$(intaket1,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"C";
+    Print @(150,210) CLR$(fg,bg)+Format$(ambient,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+    Print @(150,230) CLR$(fg,bg)+Format$(intaket3,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+    Print @(150,250) CLR$(fg,bg)+Format$(BatDegCl,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C";
+    Print @(150,270) CLR$(fg,bg)+Format$(HVBatIT,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 :  Print CLR$(fg,bg)+"C"
+    ' Print @(150,310) clr$(fg,bg)+Format$(Cat1,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"C"
+    ' Print @(150,330) clr$(fg,bg)+Format$(Cat2,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"C"
+    ' Print @(150,290) CLR$(fg,bg)+Format$(EIPT,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C"
+    ' Print @(150,370) clr$(fg,bg)+Format$(TOWT,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"C"
+    Print @(150,290) CLR$(fg,bg)+Format$(Temp1,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C"
+    Print @(150,310) CLR$(fg,bg)+Format$(Temp2,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C"
+    Print @(150,330) CLR$(fg,bg)+Format$(Temp3,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C"
+    Print @(150,350) CLR$(fg,bg)+Format$(Temp4,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"C"
+  Endif
+  If metric=0 Then
+    convtF=(convt*9/5)+32
+    Font 2 : Print @(150,90) CLR$(fg,bg)+Format$(convtF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+    ICEtF=(ICEt*9/5)+32
+    Print @(150,110) CLR$(fg,bg)+Format$(ICEtF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+    MG1tF=(MG1t*9/5)+32
+    Print @(150,130) CLR$(fg,bg)+Format$(MG1tF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+    MG2tF=(MG2t*9/5)+32
+    Print @(150,150) CLR$(fg,bg)+Format$(MG2tF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+    INV1tF=(INV1t*9/5)+32
+    Print @(150,170) CLR$(fg,bg)+Format$(INV1tF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+    INV2tF=(INV2t*9/5)+32
+    Print @(150,190) CLR$(fg,bg)+Format$(INV2tF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+   ' intaket1F=(intaket1*9/5)+32
+   ' Print @(150,210) clr$(fg,bg)+Format$(intaket1F,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"F";
+    ambientF=(ambient*9/5)+32
+    Print @(150,210) CLR$(fg,bg)+Format$(ambientF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+    intaket3F=(intaket3*9/5)+32
+    Print @(150,230) CLR$(fg,bg)+Format$(intaket3F,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+    BatDegClF=(BatDegCl*9/5)+32
+    Print @(150,250) CLR$(fg,bg)+Format$(BatDegClF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F";
+    HVBatITF=(HVBatIT*9/5)+32
+    Print @(150,270) CLR$(fg,bg)+Format$(HVBatITF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 :  Print CLR$(fg,bg)+"F"
+    ' Cat1F=(Cat1*9/5)+32
+    ' Print @(150,310) clr$(fg,bg)+Format$(Cat1F,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"F"
+    ' Cat2F=(Cat2*9/5)+32
+    ' Print @(150,330) clr$(fg,bg)+Format$(Cat2F,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"F"
+    ' EIPTF=(EIPT*9/5)+32
+    ' Print @(150,290) CLR$(fg,bg)+Format$(EIPTF,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F"
+    ' TOWTF=(TOWT*9/5)+32
+    ' Print @(150,370) clr$(fg,bg)+Format$(TOWTF,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"F"
+    Temp1F=(Temp1*9/5)+32
+    Print @(150,290) CLR$(fg,bg)+Format$(Temp1F,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F"
+    Temp2F=(Temp2*9/5)+32
+    Print @(150,310) CLR$(fg,bg)+Format$(Temp2F,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F"
+    Temp3F=(Temp3*9/5)+32
+    Print @(150,330) CLR$(fg,bg)+Format$(Temp3F,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F"
+    Temp4F=(Temp4*9/5)+32
+    Print @(150,350) CLR$(fg,bg)+Format$(Temp4F,"% -3.0f"); : Font 1 : Print CLR$(fg,bg)+"o"; : Font 2 : Print CLR$(fg,bg)+"F"
+  Endif
+End Sub
+
+Sub Temp
+'  GoSub Printheader : GoSub Drawboxes : GoSub Drawlabels_RHS
+  Font 2 : ' Print @(5,5) "Temperatures Page"
+  Print @(10,90)  CLR$(fg,bg)+"CONVERTER:" ; @(10,110) CLR$(fg,bg)+"ENGINE:" @(10,130) CLR$(fg,bg)+"MG1:" ; @(10,150) CLR$(fg,bg)+"MG2:" ;
+  Print @(10,170) CLR$(fg,bg)+"INVERTER 1:"; @(10,190) CLR$(fg,bg)+"INVERTER 2:";
+  Print @(10,210) CLR$(fg,bg)+"AMBIENT:" ;
+  Print @(10,230) CLR$(fg,bg)+"AIR INTAKE:"; @(10,250) CLR$(fg,bg)+"BATTERY LE:"; @(10,270) CLR$(fg,bg)+"HVbatIT:"
+  ' Print @(10,310) clr$(fg,bg)+"CATALYST 1:"; @(10,330) clr$(fg,bg)+"CATALYST 2:";
+  ' Print @(10,290) CLR$(fg,bg)+"INTAK PORT:";  ' @(10,370) clr$(fg,bg)+"WATER OUTL:";
+  Print @(10,290) CLR$(fg,bg)+"PHEV Temp1:";
+  Print @(10,310) CLR$(fg,bg)+"PHEV Temp2:";
+  Print @(10,330) CLR$(fg,bg)+"PHEV Temp3:";
+  Print @(10,350) CLR$(fg,bg)+"PHEV Temp4:";
+End Sub

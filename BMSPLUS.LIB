@@ -1,0 +1,40 @@
+Sub BMSplus
+  GoSub PrintHeader : GoSub drawlabels_RHS : GoSub drawboxes : Font 1
+  Print @(20,100) clr$(fg,bg)+"The BMS+ modifies H3CB and H3CD"; @(20,120) "and message H555 data is below:"
+  Print @(20,144) clr$(fg,bg)+"H555-Data(0) Original DCL : "; : Print @(20,164) clr$(fg,bg)+"H555-Data(1) Original CCL : "
+  Print @(20,184) clr$(fg,bg)+"H555-Data(2) Original SoC : "; : Print @(20,204) clr$(fg,bg)+"H555-Data(3) Original Bth : "
+  Print @(20,224) clr$(fg,bg)+"H555-Data(4) Original Btl : "; : Print @(20,244) clr$(fg,bg)+"H555-Data(5) Original DTC : "
+  Print @(20,264) clr$(fg,bg)+"H555-Data(6) Original DTC : "; : Print @(20,284) clr$(fg,bg)+"H555-Data(7)    Allways 1 : "
+  Print @(20,304) clr$(fg,bg)+"Original Batt. Temp. High : "; : Print @(20,324) clr$(fg,bg)+"Original Batt. Temp. Low  : ";
+  Print @(97,344) clr$(fg,bg)+"Original DTC : ";
+End Sub
+
+Sub UpdateBMSplus
+  Local rxData(8), rxOk
+  CAN RX 9,rxData(0),rxOk
+  If (rxOk=1) Then
+    Font 2 : Print @(180,140) clr$(fg,bg)+Format$(rxData(0),"% -4.0f") clr$(fg,bg)+" A" @(180,160) clr$(fg,bg)+Format$(rxData(1),"% -4.0f") clr$(fg,bg)+" A" ;
+    Print @(180,180) clr$(fg,bg)+Format$(rxData(2)/2,"% -3.0f") clr$(fg,bg)+" %" ;
+    Print @(180,240) clr$(fg,bg)+Format$(rxData(5),"% -2.0f") @(180,260) clr$(fg,bg)+Format$(rxData(6),"% -2.0f");
+    Print @(180,280) clr$(fg,bg)+Format$(rxData(7),"% -2.0f") 
+    Print @(180,200) clr$(fg,bg)+"     ";
+    Print @(180,220) clr$(fg,bg)+"     "; 
+    Print @(180,300) clr$(fg,bg)+"     ";
+    Print @(180,320) clr$(fg,bg)+"     ";
+    If metric=1 Then
+      Print @(180,200) clr$(fg,bg)+Format$(rxData(3),"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"C";
+      Print @(180,220) clr$(fg,bg)+Format$(rxData(4),"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"C";
+      Print @(180,300) clr$(fg,bg)+Format$(rxData(3),"% -3.0f");
+      Print @(180,320) clr$(fg,bg)+Format$(rxData(4),"% -3.0f");
+    Endif
+    If metric=0 Then
+      D3tF=(rxData(3)*9/5)+32
+      D4tF=(rxData(4)*9/5)+32
+      Print @(180,200) clr$(fg,bg)+Format$(D3tF,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"F";
+      Print @(180,220) clr$(fg,bg)+Format$(D4tF,"% -3.0f"); : Font 1 : Print clr$(fg,bg)+"o"; : Font 2 : Print clr$(fg,bg)+"F";
+      Print @(180,300) clr$(fg,bg)+Format$(D3tF,"% -3.0f");
+      Print @(180,320) clr$(fg,bg)+Format$(D4tF,"% -3.0f"); 
+    Endif
+    Print @(195,340) clr$(fg,bg)+Format$(rxData(5),"%02.0f") clr$(fg,bg)+Format$(rxData(6),"%02.0f");
+  EndIf
+End Sub

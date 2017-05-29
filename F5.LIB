@@ -1,0 +1,109 @@
+Sub Filter21D0 '- HV battery cell internal resistances @ &H7E3 - &H7EB
+  Local D1, D2, D3, D4, D5, looper, HVBL, HVBH, HVBD, rxData(8), rxOk, rxId, rxType, rxLen, mem, Ebuf
+  D1=0 : D2=0 : D3=0 : D4=0 : D5=0 : looper=0
+  Do
+    CAN RX 22,rxId,rxType,rxLen,rxData(0),rxOk 'CHANNEL 22 - tx&H7E3 to rx&H7EB
+    If rxok=1 Then
+      If D1=0 And rxData(0)=&H10 Then
+        HVLT=(256*rxData(5))+rxData(6) : mem=rxData(7) : D1=1
+        Ebuf=rxData(1) : Ebuf=rxData(2) : Ebuf=rxData(3) : Ebuf=rxData(4)
+      EndIf
+      If D2=0 And rxData(0)=&H21 Then
+ '       HVIT=(256*mem)+rxData(1)
+         Ebuf=rxData(1)
+ '       HVTH=(256*rxData(2))+rxData(3) 
+         Ebuf=rxData(2) : Ebuf=rxData(3)
+ '       HVHT=(256*rxData(4))+rxData(5) 
+        Ebuf=rxData(4) : Ebuf=rxData(5)
+        D2=1 : HVBL=(2.56*rxData(6))+(0.01*rxData(7))-327.68 : Print @(60,310)  CLR$(fg,bg)+Format$(HVBL,"%5.2f") ;  CLR$(fg,bg)+" v";
+      EndIf
+      If D3=0 And rxData(0)=&H22 Then
+ '       D3=1 : IR1 = 0.001 * rxData(5) : IR2 = 0.001 * rxData(6) : IR3 = 0.001 * rxData(7) 
+        Ebuf=rxData(1) : Ebuf=rxData(4) : Ebuf=rxData(5) : Ebuf=rxData(6) : Ebuf=rxData(7) : D3=1
+        HVBH=(2.56*rxData(2))+(0.01*rxData(3))-327.68 : Print @(60,290)  CLR$(fg,bg)+Format$(HVBH,"%5.2f") ;  CLR$(fg,bg)+" v";
+        HVBD=HVBH-HVBL : Print @(60,330)  CLR$(fg,bg)+Format$(HVBD,"%5.2f") ;  CLR$(fg,bg)+" v";
+      EndIf
+      If D4=0 And rxData(0)=&H23 Then
+ '       D4=1 : IR4 = 0.001 * rxData(1) : IR5 = 0.001 * rxData(2) : IR6 = 0.001 * rxData(3) 
+         Ebuf=rxData(1) : Ebuf=rxData(2) : Ebuf=rxData(3) : D4=1
+ '       IR7 = 0.001 * rxData(4) : IR8 = 0.001 * rxData(5) : IR9 = 0.001 * rxData(6) 
+         Ebuf=rxData(4) : Ebuf=rxData(5) : Ebuf=rxData(6)
+ '       IR10 = 0.001 * rxData(7) 
+         Ebuf=rxData(7)
+      EndIf
+      If D5=0 And rxData(0)=&H24 Then
+'        D5=1 : IR11 = 0.001 * rxData(1) : IR12 = 0.001 * rxData(2) : IR13 = 0.001 * rxData(3)
+        Ebuf=rxData(1) : Ebuf=rxData(2) : Ebuf=rxData(3) : Ebuf=rxData(4) : Ebuf=rxData(5) : Ebuf=rxData(6) : Ebuf=rxData(7) : D5=1
+'        IR14 = 0.001 * rxData(4)
+      EndIf
+'      IRT = IR1+IR2+IR3+IR4+IR5+IR6+IR7+IR8+IR9+IR10+IR11+IR12+IR13+IR14
+    EndIf
+    If D1=1 And D2=1 And D3=1 And D4=1 And D5=1 Then Exit Sub
+    looper = looper + 1 : If looper > 10 Then Exit Sub
+  Loop
+End Sub
+
+Sub Filter21CE ' F5 - HV battery cell voltages @ &H7E3 - &H7EB
+  Local rxData(8), rxOk, D1, D2, D3, D4, D5, looper, HVB1mem, HVB1, HVB2, HVB3,HVB4
+  Local HVB5, HVB6, HVB7, HVB8mem, HVB8, HVB9, HVB10, HVB11, HVB12, HVB13, HVB14, HVBT, Ebuf
+  D1=0 : D2=0 : D3=0 : D4=0 : D5=0 : looper = 0 : Font 2
+  Do
+    CAN RX 22,rxData(0),rxOk 'CHANNEL 24 - tx&H7E3 to rx&H7EB
+    If rxok=1 Then
+      If D1=0 And rxData(0)=&H10 And rxData(1)=&H21 And rxData(2)=&H61 And rxData(3)=&HCE Then
+        D1=1 : Ebuf=rxData(4) : Ebuf=rxData(5) : Ebuf=rxData(6)
+        HVB1MEM=rxData(7)
+      EndIf
+      If D2=0 And rxData(0)=&H21 Then
+        D2=1
+        If HVB1MEM > 0 Then
+          HVB1 = (2.56 * HVB1MEM) + (0.01 * rxData(1)) - 327.68 : Print @(35,130)  CLR$(fg,bg)+Format$(HVB1,"%5.2f") ; CLR$(fg,bg)+"v";
+        EndIf
+        HVB2 = (2.56 * rxData(2)) + (0.01 * rxData(3)) - 327.68 : Print @(155,130) CLR$(fg,bg)+Format$(HVB2,"%5.2f") ; CLR$(fg,bg)+"v";
+        HVB3 = (2.56 * rxData(4)) + (0.01 * rxData(5)) - 327.68 : Print @(35,150)  CLR$(fg,bg)+Format$(HVB3,"%5.2f") ; CLR$(fg,bg)+"v";
+        HVB4 = (2.56 * rxData(6)) + (0.01 * rxData(7)) - 327.68 : Print @(155,150)  CLR$(fg,bg)+Format$(HVB4,"%5.2f") ; CLR$(fg,bg)+"v";
+      EndIf
+      If D3=0 And rxData(0)=&H22 Then
+        D3=1
+        HVB5 = (2.56 * rxData(1)) + (0.01 * rxData(2)) - 327.68 : Print @(35,170)  CLR$(fg,bg)+Format$(HVB5,"%5.2f") ; CLR$(fg,bg)+"v";
+        HVB6 = (2.56 * rxData(3)) + (0.01 * rxData(4)) - 327.68 : Print @(155,170) CLR$(fg,bg)+Format$(HVB6,"%5.2f") ; CLR$(fg,bg)+"v";
+        HVB7 = (2.56 * rxData(5)) + (0.01 * rxData(6)) - 327.68 : Print @(35,190)  CLR$(fg,bg)+Format$(HVB7,"%5.2f") ; CLR$(fg,bg)+"v";
+        HVB8MEM = rxData(7)
+      EndIf
+      If D4=0 And rxData(0)=&H23 Then
+        D4=1
+        If HVB8MEM > 0 Then
+          HVB8 = (2.56*HVB8MEM)+(0.01*rxData(1))-327.68 : Print @(155,190) CLR$(fg,bg)+Format$(HVB8,"%5.2f") ; CLR$(fg,bg)+"v";
+        EndIf
+        HVB9 = (2.56 * rxData(2)) + (0.01 * rxData(3)) - 327.68 : Print @(35,210)  CLR$(fg,bg)+Format$(HVB9,"%5.2f") ; CLR$(fg,bg)+"v";
+        HVB10 = (2.56 * rxData(4)) + (0.01 * rxData(5)) - 327.68 : Print @(155,210) CLR$(fg,bg)+Format$(HVB10,"%5.2f"); CLR$(fg,bg)+"v";
+        HVB11 = (2.56 * rxData(6)) + (0.01 * rxData(7)) - 327.68 : Print @(35,230)  CLR$(fg,bg)+Format$(HVB11,"%5.2f"); CLR$(fg,bg)+"v";
+      EndIf
+      If D5=0 And rxData(0)=&H24 Then
+        D5=1
+        HVB12 = (2.56 * rxData(1)) + (0.01 * rxData(2)) - 327.68 : Print @(155,230) CLR$(fg,bg)+Format$(HVB12,"%5.2f"); CLR$(fg,bg)+"v";
+        HVB13 = (2.56 * rxData(3)) + (0.01 * rxData(4)) - 327.68 : Print @(35,250)  CLR$(fg,bg)+Format$(HVB13,"%5.2f"); CLR$(fg,bg)+"v";
+        HVB14 = (2.56 * rxData(5)) + (0.01 * rxData(6)) - 327.68 : Print @(155,250) CLR$(fg,bg)+Format$(HVB14,"%5.2f"); CLR$(fg,bg)+"v";
+        Ebuf=rxData(7)
+      EndIf
+      HVBT = HVB1+HVB2+HVB3+HVB4+HVB5+HVB6+HVB7+HVB8+HVB9+HVB10+HVB11+HVB12+HVB13+HVB14
+       If D1=1 And D2=1 And D3=1 And D4=1 And D5=1 Then Print @(60,270)  CLR$(fg,bg)+Format$(HVBT,"%5.2f") ;  CLR$(fg,bg)+" v";
+    EndIf
+    If D1=1 And D2=1 And D3=1 And D4=1 And D5=1 Then Exit Sub
+    looper = looper + 1 : If looper > 10 Then Exit Sub
+  Loop
+End Sub
+
+Sub F5
+  '  GoSub printheader : GoSub drawboxes : GoSub drawlabels_RHS
+  Font 1,2 : Print @(10,95) CLR$(fg,bg)+"OEM NiMH CELL VOLTS"; : Font 1
+  Print @(10,137)  CLR$(fg,bg)+"V1:"; @(130,137) CLR$(fg,bg)+"V2:"; @(10,157)  CLR$(fg,bg)+"V3:";
+  Print @(130,157) CLR$(fg,bg)+"V4:"; @(10,177)  CLR$(fg,bg)+"V5:"; @(130,177) CLR$(fg,bg)+"V6:";
+  Print @(10,197)  CLR$(fg,bg)+"V7:"; @(130,197) CLR$(fg,bg)+"V8:"; @(10,217)  CLR$(fg,bg)+"V9:";
+  Print @(130,217) CLR$(fg,bg)+"V10:"; @(10,237)  CLR$(fg,bg)+"V11:"; @(130,237) CLR$(fg,bg)+"V12:"  ;
+  Print @(10,257)  CLR$(fg,bg)+"V13:"; @(130,257) CLR$(fg,bg)+"V14:"; @(10, 277) CLR$(fg,bg)+"TOTAL:";
+  Print @(10,297) CLR$(fg,bg)+"HIGHEST:"; @(10,317) CLR$(fg,bg)+"LOWEST:"; @(10,337) CLR$(fg,bg)+"DIFF:";
+End Sub
+
+
+

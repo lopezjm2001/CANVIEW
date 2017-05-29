@@ -1,0 +1,20 @@
+Sub H3C8
+  GoSub Clearsubscreen : Font 2
+  Print @(10,110) CLR$(fg,bg)+"H3C8- ICE to HV ECU" : Font 1
+  Print @(10,160) CLR$(fg,bg)+"Data(0)Flags:"
+  Print @(10,190) CLR$(fg,bg)+"Data(1)T oC:"
+  Print @(10,220) CLR$(fg,bg)+"Data(2)ICErpm:"
+  Print @(10,250) CLR$(fg,bg)+"Data(3)ICErpm:"
+  Print @(10,280) CLR$(fg,bg)+"Data(4)FFa:"
+  Print @(10,310) CLR$(fg,bg)+"ICErpm:"
+End Sub
+
+Sub UpdateH3C8
+  Font 3
+  Print @(100,140) CLR$(fg,bg)+Hex$(H3C8data0)
+  Print @(100,170) CLR$(fg,bg)+Hex$(H3C8data1)
+  Print @(100,200) CLR$(fg,bg)+Hex$(H3C8data2)
+  Print @(100,230) CLR$(fg,bg)+Hex$(H3C8data3)
+  Print @(100,260) CLR$(fg,bg)+Hex$(fuelflowa)
+  Print @(100,290) CLR$(fg,bg)+Format$(ICErpm,"%-4.0f")
+End Sub

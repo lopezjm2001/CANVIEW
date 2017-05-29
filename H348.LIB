@@ -1,0 +1,22 @@
+Sub H348
+  GoSub Clearsubscreen : Font 2
+  Print @(10,110) CLR$(fg,bg)+"H348-HV to ICE ECU" : Font 1
+  Print @(10,160) CLR$(fg,bg)+"Data(0)Flags1:"
+  Print @(10,190) CLR$(fg,bg)+"Data(1)Flags2:"
+  Print @(10,220) CLR$(fg,bg)+"Data(2)T. RPM:"
+  Print @(10,250) CLR$(fg,bg)+"Data(3)T. NM :"
+  Print @(10,280) CLR$(fg,bg)+"Data(4)T. NM :"
+  Print @(10,310) CLR$(fg,bg)+"T.RPM:"
+  Print @(10,340) CLR$(fg,bg)+"T.NM :"
+End Sub
+
+Sub UpdateH348
+  Font 3
+  Print @(100,140) CLR$(fg,bg)+"       " @(100,140) CLR$(fg,bg)+Hex$(H348data0)
+  Print @(100,170) CLR$(fg,bg)+"       " @(100,170) CLR$(fg,bg)+Hex$(H348data1)
+  Print @(100,200) CLR$(fg,bg)+Format$(Trpm,"%-5.0f")
+  Print @(100,230) CLR$(fg,bg)+Format$(TTQH,"%-5.0f")
+  Print @(100,260) CLR$(fg,bg)+Format$(TTQL,"%-5.0f")
+  Print @(100,290) CLR$(fg,bg)+Format$(Trpm*25.6,"%-5.0f")
+  Print @(100,320) CLR$(fg,bg)+Format$(TTQH+TTQL/10,"%-4.0f")
+End Sub

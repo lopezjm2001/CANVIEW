@@ -1,0 +1,135 @@
+Sub EVDIS
+  Font 2
+  Print @(20,100) CLR$(fg,bg)+"PHEV DISPLAY" : Font 1
+  Print @(20,140) CLR$(fg,bg)+"AH remain  :"
+  Print @(20,170) CLR$(fg,bg)+"Pack volts :"
+  Print @(20,200) CLR$(fg,bg)+"Fuel Gauge :"
+  Print @(20,230) CLR$(fg,bg)+"SoC %      :"
+  Print @(20,260) CLR$(fg,bg)+"Amp + or - :"
+  Print @(20,290) CLR$(fg,bg)+"Current    :"
+  Print @(20,320) CLR$(fg,bg)+"Power      :"
+  Print @(20,350) CLR$(fg,bg)+"Temperature:"
+End Sub
+
+Sub UpdateEVDIS
+   Font 2
+   Local check$,check1$, check2$, check3$, check4$, check5$, check6$
+   Check$=Input$(2,#10)
+   If Input$(1,#10)="H" Then
+     If page=24 or Standby=1 Then Print @(90,130) CLR$(fg,bg)+"           ";
+     check1$="" : check2$="" : check3$="" : check4$=""
+     Do
+       check1$=Input$(1,#10)
+       check2$=Input$(1,#10) : If check2$="," Then EVah=Val(check1$)/10 : Exit
+       check3$=Input$(1,#10) : If check3$="," Then EVah=Val(check1$+check2$)/10 : Exit
+       check4$=Input$(1,#10) : If check4$="," Then EVah=Val(check1$+check2$+check3$)/10 : Exit
+     Loop
+     If page=24 or Standby=1 Then Print @(90,130) CLR$(fg,bg)+Format$(EVah,"% g"); " ah"
+   EndIf
+   If EVah=40.0 Then AHT=0
+   If Input$(1,#10)="V" Then
+     If page=24 or Standby=1 Then Print @(90,160) CLR$(fg,bg)+"           "; 
+     check1$="" : check2$="" : check3$="" : check4$=""
+     Do
+       Check1$=Input$(1,#10)
+       Check2$=Input$(1,#10) : If check2$="," Then Vvolts=Val(check1$) : Exit
+       Check3$=Input$(1,#10) : If check3$="," Then EVvolts=Val(check1$+check2$) : Exit
+       Check4$=Input$(1,#10) : If check4$="," Then EVvolts=Val(check1$+check2$+check3$) : Exit
+     Loop
+     If page=24 or Standby=1 Then Print @(90,160) CLR$(fg,bg)+Format$(EVvolts,"% g"); " volts"
+   EndIf
+   If Input$(1,#10)="F" Then
+     If page=24 or Standby=1 Then Print @(90,190) CLR$(fg,bg)+"           "; 
+     check1$="" : check2$="" : check3$="" : check4$=""
+     Do
+       Check1$=Input$(1,#10)
+       Check2$=Input$(1,#10) : If check2$="," Then EVfuel=Val(check1$) : Exit
+       Check3$=Input$(1,#10) : If check3$="," Then EVfuel=Val(check1$+check2$) : Exit
+       Check4$=Input$(1,#10) : If check4$="," Then EVfuel=Val(check1$+check2$+check3$) : Exit
+     Loop
+     If page=24 or Standby=1 Then Print @(90,190) CLR$(fg,bg)+Format$(EVfuel,"% g"); " %"
+   EndIf
+   If Input$(1,#10)="S" Then
+     If page=24 or Standby=1 Then Print @(90,220) CLR$(fg,bg)+"           "; 
+     check1$="" : check2$="" : check3$="" : check4$=""
+     Do
+       Check1$=Input$(1,#10)
+       Check2$=Input$(1,#10) : If check2$="," Then EVsoc=Val(check1$) : Exit
+       Check3$=Input$(1,#10) : If check3$="," Then EVsoc=Val(check1$+check2$) : Exit
+       Check4$=Input$(1,#10) : If check4$="," Then EVsoc=Val(check1$+check2$+check3$) : Exit
+     Loop
+     If page=24 or Standby=1 Then Print @(90,220) CLR$(fg,bg)+Format$(EVsoc,"% g"); " %"
+   EndIf
+   If Input$(1,#10)="D" Then
+     If page=24 or Standby=1 Then Print @(90,250) CLR$(fg,bg)+"           ";
+     Check$=Input$(1,#10)
+     If check$="1" And (Page=24 or Standby=1) Then Print @(90,250) CLR$(fg,bg)+" Charge";
+     If check$="1" Then DC=0    
+     If check$="0" And (Page=24 or Standby=1) Then Print @(90,250) CLR$(fg,bg)+" Discharge";
+     If check$="0" Then DC=1
+     Check$=Input$(1,#10)
+   EndIf
+   If Input$(1,#10)="A" Then
+     If page=24 or Standby=1 Then Print @(90,280) CLR$(fg,bg)+"           "; 
+     check1$="" : check2$="" : check3$="" : check4$=""
+     Do
+       check1$=Input$(1,#10)
+       check2$=Input$(1,#10)
+       If check2$="," Then
+         EVamps=Val(check1$)/10
+         If DC=1 Then EVamps=-EVamps
+         Exit
+       EndIf
+       check3$=Input$(1,#10)
+       If check3$="," Then
+         EVamps=Val(check1$+check2$)/10
+         If DC=1 Then EVamps=-EVamps
+         Exit
+       EndIf
+       Check4$=Input$(1,#10)
+       If check4$="," Then
+         EVamps=Val(check1$+check2$+check3$)/10
+         If DC=1 Then EVamps=-EVamps
+         Exit
+       EndIf
+     Loop
+     If page=24 or Standby=1 Then Print @(90,280) CLR$(fg,bg)+Format$(EVamps,"%+.1f") " amps"
+   EndIf
+   If Input$(1,#10)="W" Then
+     If page=24 or Standby=1 Then Print @(90,310) CLR$(fg,bg)+"             "; 
+     check1$="" : check2$="" : check3$="" : check4$="" : check5$="" : check6$=""
+     Do
+       check1$=Input$(1,#10)
+       check2$=Input$(1,#10) : If check2$="," Then EVwatts=Val(check1$) : Exit
+       check3$=Input$(1,#10) : If check3$="," Then EVwatts=Val(check1$+check2$) : Exit
+       check4$=Input$(1,#10) : If check4$="," Then EVwatts=Val(check1$+check2$+check3$) : Exit
+       check5$=Input$(1,#10) : If check5$="," Then EVwatts=Val(check1$+check2$+check3$+check4$) : Exit
+       check6$=Input$(1,#10) : If check6$="," Then EVwatts=Val(check1$+check2$+check3$+check4$+check5$) : Exit
+     Loop
+     If page=24 or Standby=1 Then Print @(90,310) CLR$(fg,bg)+Format$(EVwatts,"% g"); " watts"
+   EndIf
+   If Input$(1,#10)="T" Then
+     If page=24 or Standby=1 Then Print @(90,340) CLR$(fg,bg)+"           "; 
+     check1$="" : check2$="" : check3$="" : check4$=""
+     Do
+       check1$=Input$(1,#10)
+       check2$=Input$(1,#10) : If check2$="," Then EVtemp=Val(check1$) : Exit
+       check3$=Input$(1,#10) : If check3$="," Then EVtemp=Val(check1$+check2$) : Exit
+       check4$=Input$(1,#10) : If check4$="," Then EVtemp=Val(check1$+check2$+check3$) : Exit
+     Loop
+     If page=24 or Standby=1 Then
+       Print @(90,340) CLR$(fg,bg)+"     ";
+       If metric=1 Then 
+         Print @(90,340) CLR$(fg,bg)+Format$(EVtemp,"% -3.0f"); : Font 1 
+         Print CLR$(fg,bg)+" o"; : Font 2 : Print CLR$(fg,bg)+"C";
+       Endif
+       If metric=0 Then 
+         EVtempF=(EVtemp*9/5)+32
+         Print @(90,340) CLR$(fg,bg)+Format$(EVtempF,"% -3.0f"); : Font 1 
+         Print CLR$(fg,bg)+" o"; : Font 2 : Print CLR$(fg,bg)+"F";
+       Endif
+     Endif
+   EndIf
+   Check$=Input$(2,#10)
+End Sub
+

@@ -1,0 +1,63 @@
+Sub F6
+'  GoSub printheader : GoSub drawboxes : GoSub drawlabels_RHS
+  Font 1,2 : Print @(10,95) CLR$(fg,bg)+"OEM NiMH CELL OHMS"; : Font 1
+  Print @(10,137)  CLR$(fg,bg)+"R1:"; @(130,137) CLR$(fg,bg)+"R2:"; @(10,157)  CLR$(fg,bg)+"R3:";
+  Print @(130,157) CLR$(fg,bg)+"R4:"; @(10,177)  CLR$(fg,bg)+"R5:"; @(130,177) CLR$(fg,bg)+"R6:";
+  Print @(10,197)  CLR$(fg,bg)+"R7:"; @(130,197) CLR$(fg,bg)+"R8:"; @(10,217)  CLR$(fg,bg)+"R9:";
+  Print @(130,217) CLR$(fg,bg)+"R10:"; @(10,237)  CLR$(fg,bg)+"R11:"; @(130,237) CLR$(fg,bg)+"R12:";
+  Print @(10,257)  CLR$(fg,bg)+"R13:"; @(130,257) CLR$(fg,bg)+"R14:"; @(10,277) CLR$(fg,bg)+"TOTAL:";
+  Print @(10,297)  CLR$(fg,bg)+"HVBATTLOW:"
+  Print @(10,317)  CLR$(fg,bg)+"DCINHIBIT:"
+  Print @(10,337)  CLR$(fg,bg)+"HVBATTHIGH:"
+  Print @(10,357)  CLR$(fg,bg)+"HVTEMPHIGH:"
+End Sub
+
+Sub Filter21D0 '- HV battery cell internal resistances @ &H7E3 - &H7EB
+  Local D1 ,D2 ,D3 , D4, D5, looper, HVIT, HVLT, HVTH, HVHT, IR1, IR2, IR3, IR4, IR5, IR6, IR7, IR8
+  Local rxData(8), rxOk, rxId, rxType, rxLen, IR9, IR10, IR11, IR12, IR13, IR14, IRT, mem, Ebuf
+  Font 2 : D1=0 : D2=0 : D3=0 : D4=0 : D5=0 : looper=0
+  Do
+    CAN RX 22,rxId,rxType,rxLen,rxData(0),rxOk 'CHANNEL 22 - tx&H7E3 to rx&H7EB
+    If rxok=1 Then
+      If D1=0 And rxData(0)=&H10 Then
+         D1=1 : HVLT=(256*rxData(5))+rxData(6) : mem=rxData(7) : Print @(80,290)  CLR$(fg,bg)+Format$(HVLT,"%4.0f") ;  CLR$(fg,bg)+" Sec";
+         Ebuf=rxData(1) : Ebuf=rxData(2) : Ebuf=rxData(3) : Ebuf=rxData(4)
+      EndIf
+      If D2=0 And rxData(0)=&H21 Then
+        D2=1
+        HVIT=(256*mem)+rxData(1) : Print @(80,310)  CLR$(fg,bg)+Format$(HVIT,"%4.0f") ;  CLR$(fg,bg)+" Sec";
+        HVTH=(256*rxData(2))+rxData(3) : Print @(80,330)  CLR$(fg,bg)+Format$(HVTH,"%4.0f") ;  CLR$(fg,bg)+" Sec";
+        HVHT=(256*rxData(4))+rxData(5) : Print @(80,350)  CLR$(fg,bg)+Format$(HVHT,"%4.0f") ;  CLR$(fg,bg)+" Sec";
+'        HVBL=(2.56*rxData(6))+(0.01*rxData(7))-327.68
+        Ebuf=rxData(6) : Ebuf=rxData(7)
+      EndIf
+      If D3=0 And rxData(0)=&H22 Then
+        D3=1 : IR1 = 0.001 * rxData(5) : Print @(35,130)  CLR$(fg,bg)+"       "; @(35,130) CLR$(fg,bg)+Format$(IR1,"%g")  ; "";
+        IR2 = 0.001 * rxData(6) : Print @(155,130) CLR$(fg,bg)+"       "; @(155,130) CLR$(fg,bg)+Format$(IR2,"%g") ; "";
+        IR3 = 0.001 * rxData(7) : Print @(35,150)  CLR$(fg,bg)+"       "; @(35,150) CLR$(fg,bg)+Format$(IR3,"%g")  ; "";
+'       HVBH=(2.56*rxData(2))+(0.01*rxData(3))-327.68 : HVBD=HVBH-HVBL
+        Ebuf=rxData(1) : Ebuf=rxData(2) : Ebuf=rxData(3) : Ebuf=rxData(4)
+      EndIf
+      If D4=0 And rxData(0)=&H23 Then
+        D4=1 : IR4 = 0.001 * rxData(1) :  Print @(155,150) CLR$(fg,bg)+"       "; @(155,150) CLR$(fg,bg)+Format$(IR4,"%g") ; "";
+        IR5 = 0.001 * rxData(2) : Print @(35,170)  CLR$(fg,bg)+"       "; @(35,170) CLR$(fg,bg)+Format$(IR5,"%g")  ; "";
+        IR6 = 0.001 * rxData(3) : Print @(155,170) CLR$(fg,bg)+"       "; @(155,170) CLR$(fg,bg)+Format$(IR6,"%g") ; "";
+        IR7 = 0.001 * rxData(4) : Print @(35,190)  CLR$(fg,bg)+"       "; @(35,190) CLR$(fg,bg)+Format$(IR7,"%g")  ; "";
+        IR8 = 0.001 * rxData(5) : Print @(155,190) CLR$(fg,bg)+"       "; @(155,190) CLR$(fg,bg)+Format$(IR8,"%g") ; "";
+        IR9 = 0.001 * rxData(6) : Print @(35,210)  CLR$(fg,bg)+"       "; @(35,210) CLR$(fg,bg)+Format$(IR9,"%g")  ; "";
+        IR10 = 0.001 * rxData(7) : Print @(155,210) CLR$(fg,bg)+"       "; @(155,210) CLR$(fg,bg)+Format$(IR10,"%g"); "";
+      EndIf
+      If D5=0 And rxData(0)=&H24 Then
+        D5=1 : IR11 = 0.001 * rxData(1) : Print @(35,230)  CLR$(fg,bg)+"       "; @(35,230) CLR$(fg,bg)+Format$(IR11,"%g") ; "";
+        IR12 = 0.001 * rxData(2) : Print @(155,230) CLR$(fg,bg)+"       "; @(155,230) CLR$(fg,bg)+Format$(IR12,"%g"); "";
+        IR13 = 0.001 * rxData(3) : Print @(35,250)  CLR$(fg,bg)+"       "; @(35,250) CLR$(fg,bg)+Format$(IR13,"%g") ; "";
+        IR14 = 0.001 * rxData(4) : Print @(155,250) CLR$(fg,bg)+"       "; @(155,250) CLR$(fg,bg)+Format$(IR14,"%g"); "";
+        Ebuf=rxData(5) : Ebuf=rxData(6) : Ebuf=rxData(7)
+      EndIf
+      IRT = IR1+IR2+IR3+IR4+IR5+IR6+IR7+IR8+IR9+IR10+IR11+IR12+IR13+IR14
+      If D3=1 And D4=1 And D5=1 Then Print @(80,270)  CLR$(fg,bg)+"       "; @(80,270) CLR$(fg,bg)+Format$(IRT,"%g") ; CLR$(fg,bg)+" ohms";
+    EndIf
+    If D1=1 And D2=1 And D3=1 And D4=1 And D5=1 Then Exit Sub
+    looper = looper + 1 : If looper > 10 Then Exit Sub
+  Loop
+End Sub

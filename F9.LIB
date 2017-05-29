@@ -1,0 +1,119 @@
+Sub filter21CF ' @ &H7E3 - &H7EB
+  Local rxData(8), rxOk, D1, D2, D3,  looper, Ebuf : looper = 0 : D1=0 : D2=0 : D3=0
+  Do
+    CAN RX 22,rxData(0),rxOk 'CHANNEL 22 - tx&H7E3 to rx&H7EB
+    If rxok = 1 Then
+      If D1=0 And rxData(0)=&H10 And rxData(1)=&H12 And rxData(2)=&H61 And rxData(3)=&HCF Then
+        HVVMF  = (0.200 * rxData(6)) -25.6 : auxbat  = (0.200 * rxData(7)) - 25.6
+        HVBatIT  = ((0.288 * rxData(4)) + (0.001129 * rxData(5)) + 32)-50 : D1=1
+      Endif
+      If D2=0 And rxData(0)=&H21 Then
+        HVcharge =rxData(1)-64 : HVdischarge =rxData(2)-64
+        HVDelta =0.010*rxData(3) : D2=1
+        Ebuf=rxData(4) : Ebuf=rxData(5) : Ebuf=rxData(6) : Ebuf=rxData(7)
+      EndIf
+      If D3=0 And rxData(0)=&H22 Then
+        Ebuf=rxData(1) : Ebuf=rxData(2) : Ebuf=rxData(3) : Ebuf=rxData(4) : Ebuf=rxData(5) : Ebuf=rxData(6) : Ebuf=rxData(7)
+        D3=1
+      Endif
+      If D1=1 And D2=1 And D3=1 Then Exit Sub
+    Endif
+    looper = looper + 1 : If looper > 10 Then Exit Sub
+  Loop
+End Sub
+
+Sub filter21C4 '- &H7E2 - &H7EA
+  Local rxData(8), rxOk, looper, d1, d2, d3, d4, Ebuf : d1=0 : d2=0 : d3=0 : d4=0 : looper=0
+  Do
+    CAN RX 21,rxData(0),rxOk 'CHANNEL 21 - tx&H7E2 to rx&H7EA
+    If rxok = 1 Then
+      If D1=0 And rxData(0)=&H10 And rxData(1)=&H11 And rxdata(2)=&H61 And rxdata(3)=&HC4 Then
+        HVflags=rxData(5)
+        HVBB =2*rxData(7) : d1=1
+        Ebuf=rxData(4) : Ebuf=rxData(6)
+      Endif
+      If D2=0 And rxData(0)=&H21 Then
+          convt=(rxData(2)-50)
+          HVAB =2*rxData(1) : d2=1
+          Ebuf=rxData(3) : Ebuf=rxData(4) : Ebuf=rxData(5) : Ebuf=rxData(6) : Ebuf=rxData(7)
+      EndIf
+      If D3=0 And rxData(0)=&H22 Then
+        Ebuf=rxData(1) : Ebuf=rxData(2) : Ebuf=rxData(3) : Ebuf=rxData(4) : Ebuf=rxData(5) : Ebuf=rxData(6) : Ebuf=rxData(7)
+        D3=1
+      Endif
+      If D4=0 And rxData(0)=&H23 Then
+        Scw =0.019608*rxData(1)
+        Rpr =0.392*rxData(4)
+        Acp =0.019608*rxdata(5) : d4=1
+        Ebuf=rxData(2) : Ebuf=rxData(3) : Ebuf=rxData(6) : Ebuf=rxData(7)
+      EndIf
+      If d1=1 And d2=1 And d3=1 And d4=1 Then Exit Sub
+    Endif
+    looper = looper + 1 : If looper > 10 Then Exit Sub
+  Loop
+End Sub
+
+Sub filter21CD '- &H7E0 - &H7E8
+  Local rxData(8), rxOk, looper, d1, d2,Ebuf : d1=0 : d2=0 : looper=0
+  Do
+    CAN RX 19,rxData(0),rxOk 'CHANNEL 19 - tx&H7E0 to rx&H7E8
+    If rxok = 1 Then
+      If D1=0 And rxData(0)=&H10 And rxData(1)=&H14 And rxdata(2)=&H61 Then
+        Ebuf=rxData(3) : Ebuf=rxData(4) : Ebuf=rxData(5) : Ebuf=rxData(6) : Ebuf=rxData(7) : D1=1
+      Endif
+      If rxData(0)=&H21 and d2=0 Then EIPT =rxData(6)-40 : d2=1 : Ebuf=rxData(1) : Ebuf=rxData(2) :Ebuf=rxData(3) :Ebuf=rxData(4) :Ebuf=rxData(5) : Ebuf=rxData(7) 
+      If rxData(0)=&H22 and d3=0 Then TOWT =rxData(1)-40 : d3=1 : Ebuf=rxData(2) :Ebuf=rxData(3) :Ebuf=rxData(4) :Ebuf=rxData(5) : Ebuf=rxData(6) : Ebuf=rxData(7) 
+      If  d1=1 and d2=1 And d3=1 Then Exit Sub
+    EndIf
+    looper = looper + 1 : If looper > 10 Then Exit Sub
+  Loop
+End Sub
+
+Sub F9 ' DATA LOGGER
+'  GoSub Printheader : GoSub Drawboxes : GoSub Drawlabels_RHS : Font 2
+  Font 1 : Print  @(20,260) CLR$(fg,bg)+"PRESS ESC TO END";
+  Open "b:data1.csv" For append As #1 : Open "b:data2.csv" For append As #2
+  Open "b:data3.csv" For append As #3 
+  Open "b:data4.csv" For append As #4
+  Open "b:data5.csv" For append As #5
+  Write #1, Date$, Time$
+  Write #1,"TIME secs","Trpm NM","rpm","TTQ NM","Throt %","Brake %","kph","HVflags","VVTi","Cload %","HVch kW","HVdisch kW","HVVMF volts","auxbat","Drivecond"
+  Write #2, Date$, Time$
+  Write #2,"TIME secs","Delta %","MG1 rpm","MG2 rpm","MG1 NM","MG2 NM","Target NM","Power NM","Power Req","Discharge Req","TRB NM","RB NM","MCT NM","Gas %","Target rpm","Shift","Shift$","evMode","EV$","Dimmer"
+  Write #3, Date$, Time$
+  Write #3,"TIME secs","AH remain","Pack volts","Fuel Gauge %","SoC %","Discharge=1","Current Amps","Power Watts","Temperature oC","current","AHT","Dmax ","Cmax","volts","soc %"
+  Write #4, Date$, Time$
+  Write #4,"TIME secs","ambient","ect","EIPT","MG1t","MG2t","INV1t","INV2t","temper","convt","HVBatIT","intaket1","intaket3","ICEt","BatDegCl","BatDegCh","Temp1","Temp2","Temp3","Temp4"
+  Write #5, Date$, Time$
+  Write #5,"TIME secs","HVAB volts","HVBB volts","Scw volts","Rpr %","Acp kW","HVpi kW","HVpo kW","ICE kw","BATTkw","Nettkw"
+  Timer=0 : timermem=0
+End Sub
+
+Sub UpdateF9  'DATA LOGGING
+  If Standby=0 Then
+    If Timer => Timermem+500 Then
+      Font 2 : Print @(273,385) CLR$(fg,bg)+" ";
+      If page=9 Then Font 2 : Print @(20,200) CLR$(fg,bg)+"               ";
+    EndIf
+    If Timer => Timermem+1000 Then
+      If page=9 Then Font 2 : Print @(20,200) CLR$(fg,bg)+"DATA LOG ACTIVE";: Print @(20,260) CLR$(fg,bg)+"PRESS ESC TO END";
+      Font 2 : Print @(273,385) CLR$(fg,bg)+"*";
+      Write #1,Timer/1000,Trpm,icerpm,TTQ,throt,brake,kph,HVflags,VVTi,Cload,HVcharge ,HVdischarge ,HVVMF ,auxbat ,Drivecond
+      Write #2,Timer/1000,HVDelta ,MG1rpm,MG2rpm,MG1TQ,MG2TQ,targetpower,power,PowReq,DisReq,trb,rb,mct,gastank,Trpm,shift,shift$,evMode,EV$,dimmer
+      Write #3,Timer/1000,EVah, EVvolts, EVfuel, EVsoc, DC, EVamps, EVwatts, EVtemp,current,AHT,Dmax,Cmax,volts,soc
+      Write #4,Timer/1000,ambient,ect,EIPT,MG1t,MG2t,INV1t,INV2t,temper,convt,HVBatIT ,intaket1,intaket3,ICEt,BatDegCl,BatDegCh,Temp1,Temp2,Temp3,Temp4
+      Write #5,Timer/1000,HVAB ,HVBB ,Scw ,Rpr ,Acp ,HVpi,HVpo,ICEkw,battkw,nettkw
+      Timermem=Timer
+    EndIf
+  EndIf
+  If Standby=1 And Timer =>(Timermem+500) Then Font 2 : Print @(273,385) CLR$(fg,bg)+" ";
+  If Standby=1 And Timer=>(Timermem+1000) Then
+    Write #3,Timer/1000,EVah, EVvolts, EVfuel, EVsoc, DC, EVamps, EVwatts, EVtemp
+    Font 2 : Print @(273,385) CLR$(fg,bg)+"*"; : Timermem=Timer
+  EndIf
+End Sub
+
+Sub Endlog
+  Close #1 : Close #2 : Close #3 : Close #4 : Close #5 : Font 2 : Print @(20,200) CLR$(fg,bg)+"               "; @(20,280) CLR$(fg,bg)+"END OF DATA LOG" : Pause 2000
+  log=0 : Font 2 : Print @(273,385) " ";
+End Sub

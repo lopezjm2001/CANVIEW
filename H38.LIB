@@ -1,0 +1,27 @@
+Sub H38
+  GoSub Clearsubscreen : Font 2
+  Print @(10,110) CLR$(fg,bg)+"H38 POWER" : Font 1
+  Print @(10,160) CLR$(fg,bg)+"Data(0):"
+  Print @(10,190) CLR$(fg,bg)+"Data(1):"
+  Print @(10,220) CLR$(fg,bg)+"Data(2):"
+  Print @(10,250) CLR$(fg,bg)+"Data(3):"
+  Print @(10,280) CLR$(fg,bg)+"Data(4):"
+  Print @(10,310) CLR$(fg,bg)+"Data(5):"
+  Print @(10,340) CLR$(fg,bg)+"Data(6):"
+  Print @(10,370)  "ICEkw=data(1)*0.25"
+End Sub
+
+Sub UpdateH38
+  Local data(8), ok
+  CAN RX 6, data(0), ok
+  If ok=1 Then
+      Font 3 : Colour fg,bg
+      Print @(55,140) "       " @(55,140) data(0) "Ready"
+      Print @(55,170) "       " @(55,170) data(1) @(150,170) Format$(ICEkw,"%-3.0f") 
+      Print @(55,200) "       " @(55,200) data(2)
+      Print @(55,230) "       " @(55,230) data(3)
+      Print @(55,260) "       " @(55,260) data(4) 
+      Print @(55,290) "       " @(55,290) data(5)
+      Print @(55,320) "       " @(55,320) data(6)
+  EndIf
+End Sub

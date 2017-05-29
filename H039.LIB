@@ -1,0 +1,14 @@
+Sub H039
+  GoSub Printheader : GoSub Drawboxes : GoSub Drawlabels_RHS : Font 2
+  Print @(10,110) CLR$(fg,bg)+"&H039 - ICE"; : Font 1
+  Print @(10,160) CLR$(fg,bg)+"Data(0)ICE oC:"
+  Print @(10,190) CLR$(fg,bg)+"Data(1)Flag:";
+  Print @(10,220) CLR$(fg,bg)+"Data(2)VVTi:"
+End Sub
+
+Sub UpdateH039   ' Message &H039 - ICE
+  Font 3
+  Print @(120,140) CLR$(fg,bg)+Format$(ICEt,"%-2.0f")
+  Print @(120,170) CLR$(fg,bg)+Hex$(H039data1)
+  Print @(120,200) CLR$(fg,bg)+Format$(H039data2,"%-2.0f")
+End Sub
