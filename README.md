@@ -1,6 +1,6 @@
 # CANVIEW
 
-A CANVIEW basic program using a Duinomite Mega for a Prius Gen 2 (2005-2011)
+A CANVIEW mmbasic program using a Duinomite Mega with a 7 inch LCD screen via VGA for a Prius Gen 2 (2005-2011).
 
 DISCLAIMER - USE AT OWN RISK
 
